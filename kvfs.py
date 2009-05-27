@@ -7,7 +7,10 @@ class KVFS:
 	def __init__(self, kv_store):
 		self._kv = kv_store
 
-	def getattr(self, path):
+	def get_directory(self, path):
+		return ['.', '..', 'blub']
+
+	def get_attribute(self, path):
 		"""Returns the attributes of the object at `path`."""
 		pass
 
