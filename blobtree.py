@@ -45,6 +45,9 @@ class TreeBlob:
 		else:
 			id, meta = self.contents[path]
 		return rest_path, id, meta
+	def get_meta(self, name):
+		id, meta = self.contents[name]
+		return meta
 	def get_id(self):
 		return hashed(str(self))
 	id = property(get_id)
@@ -85,10 +88,10 @@ class BlobTree:
 			root = TreeBlob()
 			kv_store[root.id] = str(root)
 			kv_store[self.ROOT] = root.id
-	def create_data(self, path):
+	def create_data(self, path, meta):
 		end_blob = DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
-		self._save_path(path, end_blob, "")
+		self._save_path(path, end_blob, meta)
 		return end_blob
 	def _get_root_blob(self):
 		return parse(self._kv[self._kv[self.ROOT]])
@@ -106,18 +109,18 @@ class BlobTree:
 			path, id, meta = current.resolve(path)
 		line.append(parse(self._kv[id]))
 		return line
-	def set_data(self, path, data, meta):
+	def set_data(self, path, data):
 		new_blob = DataBlob(data)
 		self._kv[new_blob.id] = str(new_blob)
-		self._save_path(path, new_blob, meta)
-	def _save_path(self, path, new_blob, meta):
+		self._save_path(path, new_blob)
+	def _save_path(self, path, new_blob, meta=None):
 		path = path.split(os.sep)
 		blob_line = self._get_blob_line(os.sep.join(path[:-1]))
 		assert len(path) == len(blob_line)+1, str(path)+" vs "+str(blob_line)
 		for i in xrange(len(blob_line)):
 			name = path.pop()
 			blob = blob_line.pop()
-			blob.insert(name, new_blob.id, "")
+			blob.insert(name, new_blob.id, meta)
 			self._kv[blob.id] = str(blob)
 			new_blob = blob
 		self._kv[self.ROOT] = new_blob.id
@@ -127,6 +130,11 @@ class BlobTree:
 			print blob_line
 			raise Exception("not a data object")
 		return blob_line[-1].data
+	def get_meta_data(self, path):
+		blob_line = self._get_blob_line(path)
+		dir = blob_line[-2]
+		name = os.path.basename(path)
+		return dir.get_meta(name)
 	def __str__(self):
 		return str(self._kv)
 
@@ -135,9 +143,12 @@ class BlobTree:
 
 if __name__ == "__main__":
 	msg = "Hello Wörld! How are you?"
+	meta_msg = "Söme meta data"
 	T = BlobTree(dict())
-	T.create_data("/blub")
-	T.set_data("/blub", msg, "meta data") # FIXME meta data!
-	print T.get_data("/blub")
+	T.create_data("/blub", meta_msg)
+	T.set_data("/blub", msg)
+	T.create_data("/second", "more meta data")
+	print T.get_meta_data("/second")
+	assert msg == T.get_data("/blub")
 	print T
 
