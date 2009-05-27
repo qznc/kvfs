@@ -1,4 +1,9 @@
+#!/usr/bin/env python
 # -!- encoding: utf8 -!-
+"""
+A BlobTree is a tree of str object with str meta data.
+Elements can be identified via their path.
+"""
 
 from hashlib import md5
 import os
@@ -7,9 +12,18 @@ _DATATYPE = "d"
 _TREETYPE = "t"
 
 def hashed(data):
+	"""hash a str object"""
 	return md5(data).hexdigest()
 
+"""
+Blobs have an id attribute of type str and 
+can be serialized via str(blob).
+They are save in a key-value store with
+id as key and str(blob) as value.
+"""
+
 class DataBlob:
+	"""a data blob to be saved in a kv store"""
 	def __init__(self, data):
 		self.data = str(data)
 		self.id = hashed(data)
@@ -17,6 +31,7 @@ class DataBlob:
 		return _DATATYPE+":%i:%s" % (len(self.data), self.data)
 
 class TreeBlob:
+	"""a tree blob with children to be saved in a kv store"""
 	def __init__(self, contents=None):
 		self.contents = contents or dict()
 	def __str__(self):
@@ -27,11 +42,13 @@ class TreeBlob:
 			lst.append("%i:%s" % (len(s), s))
 		return _TREETYPE+":"+''.join(lst)
 	def set(self, name, data, meta):
+		"""insert a new data child"""
 		assert not os.path.sep in name
 		blob = DataBlob(data)
 		self.contents[name] = (blob.id,meta)
 		return blob
 	def insert(self, name, id, meta):
+		"""insert an existing blob child by id"""
 		assert not os.path.sep in name
 		self.contents[name] = (id,meta)
 	def resolve(self, path):
@@ -46,13 +63,14 @@ class TreeBlob:
 			id, meta = self.contents[path]
 		return rest_path, id, meta
 	def get_meta(self, name):
+		"""get meta data of child"""
 		id, meta = self.contents[name]
 		return meta
-	def get_id(self):
+	def _get_id(self):
 		return hashed(str(self))
-	id = property(get_id)
+	id = property(_get_id)
 
-def parse_dir(data):
+def _parse_dir(data):
 	assert data.startswith(_TREETYPE)
 	data = data[len(_TREETYPE)+1:]
 	contents = dict()
@@ -65,7 +83,7 @@ def parse_dir(data):
 		contents[name] = (id,meta)
 	return TreeBlob(contents)
 
-def parse_data(data):
+def _parse_data(data):
 	assert data.startswith(_DATATYPE)
 	data = data[len(_DATATYPE)+1:]
 	length = int(data[:data.index(':')])
@@ -73,14 +91,17 @@ def parse_data(data):
 	return DataBlob(data[skip:skip+length])
 
 def parse(data):
+	"""parse a str object and return TreeBlob or DataBlob object"""
 	if data.startswith(_DATATYPE):
-		return parse_data(data)
+		return _parse_data(data)
 	if data.startswith(_TREETYPE):
-		return parse_dir(data)
+		return _parse_dir(data)
 	raise Exception("unknown data: "+data)
 	
 
 class BlobTree:
+	"""implements a tree of str data with meta info
+	and saves everything in a key-value store"""
 	ROOT = 'root'
 	def __init__(self, kv_store):
 		self._kv = kv_store
@@ -89,16 +110,20 @@ class BlobTree:
 			kv_store[root.id] = str(root)
 			kv_store[self.ROOT] = root.id
 	def create_data(self, path, meta):
+		"""create a data object at path"""
 		end_blob = DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
 	def create_subtree(self, path, meta):
+		"""create a tree object at path"""
 		end_blob = TreeBlob(dict())
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
 	def _get_root_blob(self):
+		"""get the root TreeBlob"""
 		return parse(self._kv[self._kv[self.ROOT]])
 	def _get_blob_line(self, path):
+		"""get a list of blobs representing the path"""
 		if not path:
 			return [self._get_root_blob()]
 		assert path.startswith(os.path.sep)
@@ -113,10 +138,12 @@ class BlobTree:
 		line.append(parse(self._kv[id]))
 		return line
 	def set_data(self, path, data):
+		"""put data into data object at path"""
 		new_blob = DataBlob(data)
 		self._kv[new_blob.id] = str(new_blob)
 		self._save_path(path, new_blob)
 	def _save_path(self, path, new_blob, meta=None):
+		"""save new_blob at path by updating all TreeBlobs above"""
 		path = path.split(os.sep)
 		blob_line = self._get_blob_line(os.sep.join(path[:-1]))
 		assert len(path) == len(blob_line)+1, str(path)+" vs "+str(blob_line)
@@ -131,12 +158,14 @@ class BlobTree:
 			meta = None # preserve meta data of upper levels
 		self._kv[self.ROOT] = new_blob.id
 	def get_data(self, path):
+		"""return data from data object at path"""
 		blob_line = self._get_blob_line(path)
 		if not isinstance(blob_line[-1], DataBlob):
 			print blob_line
 			raise Exception("not a data object")
 		return blob_line[-1].data
 	def get_meta_data(self, path):
+		"""return meta data from data object at path"""
 		blob_line = self._get_blob_line(path)
 		dir = blob_line[-2]
 		name = os.path.basename(path)
