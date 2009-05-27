@@ -120,9 +120,12 @@ class BlobTree:
 		for i in xrange(len(blob_line)):
 			name = path.pop()
 			blob = blob_line.pop()
+			if not meta:
+				meta = blob.get_meta(name)
 			blob.insert(name, new_blob.id, meta)
 			self._kv[blob.id] = str(blob)
 			new_blob = blob
+			meta = None # preserve meta data of upper levels
 		self._kv[self.ROOT] = new_blob.id
 	def get_data(self, path):
 		blob_line = self._get_blob_line(path)
@@ -138,9 +141,6 @@ class BlobTree:
 	def __str__(self):
 		return str(self._kv)
 
-
-
-
 if __name__ == "__main__":
 	msg = "Hello Wörld! How are you?"
 	meta_msg = "Söme meta data"
@@ -149,6 +149,6 @@ if __name__ == "__main__":
 	T.set_data("/blub", msg)
 	T.create_data("/second", "more meta data")
 	print T.get_meta_data("/second")
+	assert meta_msg == T.get_meta_data("/blub")
 	assert msg == T.get_data("/blub")
-	print T
 
