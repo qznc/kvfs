@@ -173,7 +173,7 @@ class BlobTree:
 	def __str__(self):
 		return str(self._kv)
 
-if __name__ == "__main__":
+def test_basic():
 	msg = "Hello Wörld! How are you?"
 	meta_msg = "Söme meta data"
 	T = BlobTree(dict())
@@ -188,3 +188,5 @@ if __name__ == "__main__":
 	assert meta_msg == T.get_meta_data("/sub/blub")
 	print T
 
+if __name__ == "__main__":
+	test_basic()
