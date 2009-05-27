@@ -41,7 +41,7 @@ class TreeBlob:
 			i = path.index(os.path.sep)
 			name = path[:i]
 			rest_path = path[i+len(os.path.sep):]
-			id, meta = self.contents[path]
+			id, meta = self.contents[name]
 		else:
 			id, meta = self.contents[path]
 		return rest_path, id, meta
@@ -92,7 +92,10 @@ class BlobTree:
 		end_blob = DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
-		return end_blob
+	def create_subtree(self, path, meta):
+		end_blob = TreeBlob(dict())
+		self._kv[end_blob.id] = str(end_blob)
+		self._save_path(path, end_blob, meta)
 	def _get_root_blob(self):
 		return parse(self._kv[self._kv[self.ROOT]])
 	def _get_blob_line(self, path):
@@ -148,7 +151,11 @@ if __name__ == "__main__":
 	T.create_data("/blub", meta_msg)
 	T.set_data("/blub", msg)
 	T.create_data("/second", "more meta data")
-	print T.get_meta_data("/second")
 	assert meta_msg == T.get_meta_data("/blub")
 	assert msg == T.get_data("/blub")
+	print T.create_subtree("/sub", meta_msg)
+	T.create_data("/sub/blub", meta_msg)
+	T.set_data("/sub/blub", "some data")
+	assert meta_msg == T.get_meta_data("/sub/blub")
+	print T
 
