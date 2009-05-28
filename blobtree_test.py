@@ -58,5 +58,16 @@ def test_deletion():
 	T.set_data("/sub/data", "some data")
 	T.unlink("/sub")
 
+def test_dir():
+	meta1 = "apple"
+	T = BlobTree(dict())
+	T.create_subtree("/sub", meta1)
+	T.create_subtree("/sub/sub", meta1)
+	T.create_subtree("/sub/sub2", meta1)
+
+	assert "sub" in T.list_dir("/sub")
+	assert "sub2" in T.list_dir("/sub")
+
+
 if __name__ == "__main__":
 	test_basic()

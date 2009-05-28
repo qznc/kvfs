@@ -78,6 +78,9 @@ class _TreeBlob:
 		"""overwrite meta data of child"""
 		id, old_meta = self.contents[name]
 		self.contents[name] = (id, meta)
+	def list_childs(self):
+		for name in self.contents.keys():
+			yield name
 	def _get_id(self):
 		return _hashed(str(self))
 	id = property(_get_id, doc="key for this directory state blob")
@@ -204,6 +207,9 @@ class BlobTree:
 		except KeyError:
 			return False
 		return True
+	def list_dir(self, path):
+		blob_line = self._get_blob_line(path)
+		return blob_line[-1].list_childs()
 	def __str__(self):
 		return "\n".join("%32s\t%s" % (k,v) for k,v in self._kv.items())
 
