@@ -132,10 +132,13 @@ class BlobTree:
 		return _parse(self._kv[self._kv[self.ROOT]])
 	def _get_blob_line(self, path):
 		"""get a list of blobs representing the path"""
+		if path.endswith(os.sep):
+			path = path[:-len(os.sep)]
+			# path may be '' now
 		if not path:
 			return [self._get_root_blob()]
-		assert path.startswith(os.path.sep)
-		path = path[len(os.path.sep):]
+		assert path.startswith(os.sep)
+		path = path[len(os.sep):]
 		current = self._get_root_blob()
 		line = [current]
 		path, id, meta = current.resolve(path)

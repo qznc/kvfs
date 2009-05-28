@@ -65,6 +65,8 @@ def test_dir():
 	T.create_subtree("/sub/sub", meta1)
 	T.create_subtree("/sub/sub2", meta1)
 
+	assert "sub" in T.list_dir("")
+	assert "sub" in T.list_dir("/")
 	assert "sub" in T.list_dir("/sub")
 	assert "sub2" in T.list_dir("/sub")
 
