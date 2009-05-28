@@ -72,10 +72,9 @@ class TreeBlob:
 		"""overwrite meta data of child"""
 		id, old_meta = self.contents[name]
 		self.contents[name] = (id, meta)
-	meta = property(get_meta, set_meta)
 	def _get_id(self):
 		return hashed(str(self))
-	id = property(_get_id)
+	id = property(_get_id, doc="key for this directory state blob")
 
 def _parse_dir(data):
 	assert data.startswith(_TREETYPE)
