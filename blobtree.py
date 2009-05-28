@@ -29,6 +29,13 @@ class DataBlob:
 		self.id = hashed(data)
 	def __str__(self):
 		return _DATATYPE+":%i:%s" % (len(self.data), self.data)
+	@classmethod
+	def parse(Cls, data):
+		assert data.startswith(_DATATYPE)
+		data = data[len(_DATATYPE)+1:]
+		length = int(data[:data.index(':')])
+		skip = len(str(length))+1
+		return Cls(data[skip:skip+length])
 
 class TreeBlob:
 	"""a tree blob with children to be saved in a kv store"""
@@ -75,33 +82,26 @@ class TreeBlob:
 	def _get_id(self):
 		return hashed(str(self))
 	id = property(_get_id, doc="key for this directory state blob")
-
-def _parse_dir(data):
-	assert data.startswith(_TREETYPE)
-	data = data[len(_TREETYPE)+1:]
-	contents = dict()
-	while data:
-		length = int(data[:data.index(':')])
-		skip = len(str(length))+1
-		current = data[skip:skip+length]
-		data = data[skip+length:]
-		name,id,meta = current.split(':')
-		contents[name] = (id,meta)
-	return TreeBlob(contents)
-
-def _parse_data(data):
-	assert data.startswith(_DATATYPE)
-	data = data[len(_DATATYPE)+1:]
-	length = int(data[:data.index(':')])
-	skip = len(str(length))+1
-	return DataBlob(data[skip:skip+length])
+	@classmethod
+	def parse(Cls, data):
+		assert data.startswith(_TREETYPE)
+		data = data[len(_TREETYPE)+1:]
+		contents = dict()
+		while data:
+			length = int(data[:data.index(':')])
+			skip = len(str(length))+1
+			current = data[skip:skip+length]
+			data = data[skip+length:]
+			name,id,meta = current.split(':')
+			contents[name] = (id,meta)
+		return Cls(contents)
 
 def parse(data):
 	"""parse a str object and return TreeBlob or DataBlob object"""
 	if data.startswith(_DATATYPE):
-		return _parse_data(data)
+		return DataBlob.parse(data)
 	if data.startswith(_TREETYPE):
-		return _parse_dir(data)
+		return TreeBlob.parse(data)
 	raise Exception("unknown data: "+data)
 	
 
