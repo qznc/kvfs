@@ -34,6 +34,19 @@ def test_meta_data():
 	T.set_meta_data("/sub/data", meta1)
 	assert meta1 == T.get_meta_data("/sub/data")
 
+def test_peeking():
+	T = BlobTree(dict())
+	assert not T.exists("/dummy")
+
+def test_checking():
+	T = BlobTree(dict())
+	T.create_subtree("/sub", "meta")
+	T.create_data("/sub/data", "meta")
+	assert not T.is_data("/sub")
+	assert T.is_dir("/sub")
+	assert not T.is_dir("/sub/data")
+	assert T.is_data("/sub/data")
+
 def test_deletion():
 	meta1 = "apple"
 	meta2 = "microsoft"
