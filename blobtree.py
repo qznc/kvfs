@@ -51,6 +51,8 @@ class TreeBlob:
 		"""insert an existing blob child by id"""
 		assert not os.path.sep in name
 		self.contents[name] = (id,meta)
+	def unlink(self, name):
+		del self.contents[name]
 	def resolve(self, path):
 		"""returns (unresolved rest path, blob id, blob meta info)"""
 		rest_path = ""
@@ -144,12 +146,14 @@ class BlobTree:
 		self._save_path(path, new_blob)
 	def _save_path(self, path, new_blob, meta=None):
 		"""save new_blob at path by updating all TreeBlobs above"""
+		assert path.startswith(os.sep)
 		path = path.split(os.sep)
 		blob_line = self._get_blob_line(os.sep.join(path[:-1]))
 		assert len(path) == len(blob_line)+1, str(path)+" vs "+str(blob_line)
 		for i in xrange(len(blob_line)):
 			name = path.pop()
 			blob = blob_line.pop()
+			print "saving", name, blob
 			if not meta:
 				meta = blob.get_meta(name)
 			blob.insert(name, new_blob.id, meta)
@@ -170,6 +174,14 @@ class BlobTree:
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		return dir.get_meta(name)
+	def unlink(self, path):
+		blob_line = self._get_blob_line(path)
+		dir = blob_line[-2]
+		name = os.path.basename(path)
+		dirname = os.path.dirname(path)
+		dir.unlink(name)
+		print "unlink", path, "...", dirname, dir
+		self._save_path(dirname, dir)
 	def __str__(self):
 		return str(self._kv)
 
