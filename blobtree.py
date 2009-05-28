@@ -5,15 +5,14 @@ A BlobTree is a tree of str object with str meta data.
 Elements can be identified via their path.
 """
 
-from hashlib import md5
-import os
+import os, hashlib
 
 _DATATYPE = "d"
 _TREETYPE = "t"
 
-def hashed(data):
+def _hashed(data):
 	"""hash a str object"""
-	return md5(data).hexdigest()
+	return hashlib.md5(data).hexdigest()
 
 """
 Blobs have an id attribute of type str and 
@@ -22,11 +21,11 @@ They are save in a key-value store with
 id as key and str(blob) as value.
 """
 
-class DataBlob:
+class _DataBlob:
 	"""a data blob to be saved in a kv store"""
 	def __init__(self, data):
 		self.data = str(data)
-		self.id = hashed(data)
+		self.id = _hashed(data)
 	def __str__(self):
 		return _DATATYPE+":%i:%s" % (len(self.data), self.data)
 	@classmethod
@@ -37,7 +36,7 @@ class DataBlob:
 		skip = len(str(length))+1
 		return Cls(data[skip:skip+length])
 
-class TreeBlob:
+class _TreeBlob:
 	"""a tree blob with children to be saved in a kv store"""
 	def __init__(self, contents=None):
 		self.contents = contents or dict()
@@ -51,7 +50,7 @@ class TreeBlob:
 	def set(self, name, data, meta):
 		"""insert a new data child"""
 		assert not os.path.sep in name
-		blob = DataBlob(data)
+		blob = _DataBlob(data)
 		self.contents[name] = (blob.id,meta)
 		return blob
 	def insert(self, name, id, meta):
@@ -80,7 +79,7 @@ class TreeBlob:
 		id, old_meta = self.contents[name]
 		self.contents[name] = (id, meta)
 	def _get_id(self):
-		return hashed(str(self))
+		return _hashed(str(self))
 	id = property(_get_id, doc="key for this directory state blob")
 	@classmethod
 	def parse(Cls, data):
@@ -96,12 +95,12 @@ class TreeBlob:
 			contents[name] = (id,meta)
 		return Cls(contents)
 
-def parse(data):
+def _parse(data):
 	"""parse a str object and return TreeBlob or DataBlob object"""
 	if data.startswith(_DATATYPE):
-		return DataBlob.parse(data)
+		return _DataBlob.parse(data)
 	if data.startswith(_TREETYPE):
-		return TreeBlob.parse(data)
+		return _TreeBlob.parse(data)
 	raise Exception("unknown data: "+data)
 	
 
@@ -112,22 +111,22 @@ class BlobTree:
 	def __init__(self, kv_store):
 		self._kv = kv_store
 		if not self.ROOT in kv_store:
-			root = TreeBlob()
+			root = _TreeBlob()
 			kv_store[root.id] = str(root)
 			kv_store[self.ROOT] = root.id
 	def create_data(self, path, meta):
 		"""create a data object at path"""
-		end_blob = DataBlob("")
+		end_blob = _DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
 	def create_subtree(self, path, meta):
 		"""create a tree object at path"""
-		end_blob = TreeBlob(dict())
+		end_blob = _TreeBlob(dict())
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
 	def _get_root_blob(self):
 		"""get the root TreeBlob"""
-		return parse(self._kv[self._kv[self.ROOT]])
+		return _parse(self._kv[self._kv[self.ROOT]])
 	def _get_blob_line(self, path):
 		"""get a list of blobs representing the path"""
 		if not path:
@@ -138,14 +137,14 @@ class BlobTree:
 		line = [current]
 		path, id, meta = current.resolve(path)
 		while path:
-			current = parse(self._kv[id])
+			current = _parse(self._kv[id])
 			line.append(current)
 			path, id, meta = current.resolve(path)
-		line.append(parse(self._kv[id]))
+		line.append(_parse(self._kv[id]))
 		return line
 	def set_data(self, path, data):
 		"""put data into data object at path"""
-		new_blob = DataBlob(data)
+		new_blob = _DataBlob(data)
 		self._kv[new_blob.id] = str(new_blob)
 		self._save_path(path, new_blob)
 	def _save_path(self, path, new_blob, meta=None):
@@ -167,7 +166,7 @@ class BlobTree:
 	def get_data(self, path):
 		"""return data from data object at path"""
 		blob_line = self._get_blob_line(path)
-		if not isinstance(blob_line[-1], DataBlob):
+		if not isinstance(blob_line[-1], _DataBlob):
 			raise Exception("not a data object")
 		return blob_line[-1].data
 	def get_meta_data(self, path):
