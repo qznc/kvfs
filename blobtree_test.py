@@ -27,10 +27,12 @@ def test_meta_data():
 	T.create_subtree("/sub/sub", meta2)
 	T.create_data("/sub/data", meta3)
 	T.set_data("/sub/data", "some data")
-
 	assert meta1 == T.get_meta_data("/sub")
 	assert meta2 == T.get_meta_data("/sub/sub")
 	assert meta3 == T.get_meta_data("/sub/data")
+
+	T.set_meta_data("/sub/data", meta1)
+	assert meta1 == T.get_meta_data("/sub/data")
 
 def test_deletion():
 	meta1 = "apple"

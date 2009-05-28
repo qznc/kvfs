@@ -68,6 +68,11 @@ class TreeBlob:
 		"""get meta data of child"""
 		id, meta = self.contents[name]
 		return meta
+	def set_meta(self, name, meta):
+		"""overwrite meta data of child"""
+		id, old_meta = self.contents[name]
+		self.contents[name] = (id, meta)
+	meta = property(get_meta, set_meta)
 	def _get_id(self):
 		return hashed(str(self))
 	id = property(_get_id)
@@ -153,8 +158,7 @@ class BlobTree:
 		for i in xrange(len(blob_line)):
 			name = path.pop()
 			blob = blob_line.pop()
-			print "saving", name, blob
-			if not meta:
+			if name and not meta:
 				meta = blob.get_meta(name)
 			blob.insert(name, new_blob.id, meta)
 			self._kv[blob.id] = str(blob)
@@ -165,7 +169,6 @@ class BlobTree:
 		"""return data from data object at path"""
 		blob_line = self._get_blob_line(path)
 		if not isinstance(blob_line[-1], DataBlob):
-			print blob_line
 			raise Exception("not a data object")
 		return blob_line[-1].data
 	def get_meta_data(self, path):
@@ -174,16 +177,25 @@ class BlobTree:
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		return dir.get_meta(name)
+	def set_meta_data(self, path, meta):
+		"""overwrite meta data"""
+		blob_line = self._get_blob_line(path)
+		dir = blob_line[-2]
+		name = os.path.basename(path)
+		dirname = os.path.dirname(path)
+		dir.set_meta(name, meta)
+		self._kv[dir.id] = str(dir)
+		self._save_path(dirname, dir)
 	def unlink(self, path):
+		"""remove a path from the system"""
 		blob_line = self._get_blob_line(path)
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		dirname = os.path.dirname(path)
 		dir.unlink(name)
-		print "unlink", path, "...", dirname, dir
 		self._save_path(dirname, dir)
 	def __str__(self):
-		return str(self._kv)
+		return "\n".join("%32s\t%s" % (k,v) for k,v in self._kv.items())
 
 if __name__ == "__main__":
 	msg = "Hello Wörld! How are you?"
