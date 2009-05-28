@@ -2,6 +2,7 @@ from blobtree import BlobTree
 import fuse
 import marshal
 import stat
+import time
 
 class _MetaData:
 	def __init__(self, str=None):
@@ -16,14 +17,15 @@ class _MetaData:
 					"st_uid": 0,
 					"st_gid": 0,
 					"st_size": 4096,
-					"st_atime": 0,
-					"st_mtime": 0,
-					"st_ctime": 0
+					"st_atime": int(time.time()),
+					"st_mtime": int(time.time()),
+					"st_ctime": int(time.time()),
 					}
-		self.__setattr__ = self.__setattr
-	def __setattr(self, attr, value):
+	def __setitem__(self, attr, value):
 		self.data[attr] = value
 	def __getattr__(self, attr):
+		return self.data[attr]
+	def __getitem(self, attr):
 		return self.data[attr]
 	def __str__(self):
 		return marshal.dumps(self.data)
@@ -52,7 +54,7 @@ class KVFS:
 		if path == "/":
 			return self.root_meta
 		try:
-			return self._bt.get_meta_data(path)
+			return _MetaData(self._bt.get_meta_data(path))
 		except (KeyError, IndexError):
 			raise_io(fuse.ENOENT)
 
@@ -75,11 +77,15 @@ class KVFS:
 	def chown(self, path, uid, gid):
 		pass
 
-	def create(self, path, mode, dev):
+	def create(self, path, mode, dev, uid, gid):
 		"""create a file"""
+		assert stat.S_ISREG(mode) or stat.S_ISDIR(mode)
+		# TODO error if already exists
 		m = _MetaData()
-		m.st_mode = mode
-		m.st_dev = dev
+		m['st_mode'] = mode
+		m['st_dev'] = dev
+		m['st_uid'] = uid
+		m['st_gid'] = gid
 		self._bt.create_data(path, m)
 
 	def mkdir(self, path, mode):

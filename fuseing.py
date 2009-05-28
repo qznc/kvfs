@@ -1,4 +1,4 @@
-import fuse, stat
+import fuse 
 fuse.fuse_python_api = (0, 2)
 
 class MyFuseFS(fuse.Fuse):
@@ -19,28 +19,48 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.readdir(path)
 
 	def getattr(self, path):
+		print "getattr", path
+		return self._fs.getattr(path)
+
+	def fgetattr(self, path, fh=None):
+		print "fgetattr", path
 		return self._fs.getattr(path)
 
 	def rmdir(self, path):
-		self._fs.rmdir(path)
+		return self._fs.rmdir(path)
 
 	def create(self, path, mode, dev):
 		"""create a file"""
+		context = self.GetContext()
+		print context
+		print "create", path, oct(mode), dev
+		return self._fs.create(path, mode, dev, context['uid'], context['gid'])
+
+	def mknod(self, path, mode, dev):
+		"""create a file"""
+		print "mknod", path, oct(mode), dev
 		return self._fs.create(path, mode, dev)
 
 	def fsinit(self):
 		"""start file system"""
 		print "fsinit"
-		self.__getattr__ = self.__getattr
 
 	def fsdestroy(self):
 		"""stop file system"""
 		print "fsdestroy"
-		del self.__getattr__
 
-	def __getattr(self, attr):
-		print "fuse fs proxies", attr
-		return getattr(self._fs, attr)
+	def flush(self, path, fh=None):
+		print "flush", path
+
+	def fsync(self, path, fdatasync, fh=None):
+		print "fsync", path, fdatasync
+
+	def ftruncate(self, path, len, fh=None):
+		print "ftruncate", path, len
+
+	def fsyncdir(self, path, fdatasync, fh=None):
+		print "fsyncdir", path, fdatasync
+
 
 if __name__ == "__main__":
 	from kvfs import KVFS
