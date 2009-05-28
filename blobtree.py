@@ -192,6 +192,12 @@ class BlobTree:
 		dirname = os.path.dirname(path)
 		dir.unlink(name)
 		self._save_path(dirname, dir)
+	def exists(self, path):
+		try:
+			blob_line = self._get_blob_line(path)
+		except KeyError:
+			return False
+		return True
 	def __str__(self):
 		return "\n".join("%32s\t%s" % (k,v) for k,v in self._kv.items())
 
