@@ -192,6 +192,12 @@ class BlobTree:
 		dirname = os.path.dirname(path)
 		dir.unlink(name)
 		self._save_path(dirname, dir)
+	def is_data(self, path):
+		blob_line = self._get_blob_line(path)
+		return isinstance(blob_line[-1], _DataBlob)
+	def is_dir(self, path):
+		blob_line = self._get_blob_line(path)
+		return isinstance(blob_line[-1], _TreeBlob)
 	def exists(self, path):
 		try:
 			blob_line = self._get_blob_line(path)
