@@ -26,13 +26,17 @@ class MyFuseFS(fuse.Fuse):
 		print "fgetattr", path
 		return self._fs.getattr(path)
 
+	def mkdir(self, path, mode):
+		context = self.GetContext()
+		print "mkdir", path, oct(mode)
+		return self._fs.mkdir(path, mode, context['uid'], context['gid'])
+
 	def rmdir(self, path):
 		return self._fs.rmdir(path)
 
 	def create(self, path, mode, dev):
 		"""create a file"""
 		context = self.GetContext()
-		print context
 		print "create", path, oct(mode), dev
 		return self._fs.create(path, mode, dev, context['uid'], context['gid'])
 

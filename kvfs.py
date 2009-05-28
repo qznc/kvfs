@@ -79,18 +79,24 @@ class KVFS:
 
 	def create(self, path, mode, dev, uid, gid):
 		"""create a file"""
-		assert stat.S_ISREG(mode) or stat.S_ISDIR(mode)
+		assert stat.S_ISREG(mode)
 		# TODO error if already exists
 		m = _MetaData()
-		m['st_mode'] = mode
+		m['st_mode'] = mode | 0755
 		m['st_dev'] = dev
 		m['st_uid'] = uid
 		m['st_gid'] = gid
-		self._bt.create_data(path, m)
+		self._bt.create_data(path, str(m))
 
-	def mkdir(self, path, mode):
+	def mkdir(self, path, mode, uid, gid):
 		"""creates a directory"""
-		self._bt.create_subtree(path)
+		# TODO error if already exists
+		mode = mode | stat.S_IFDIR
+		m = _MetaData()
+		m['st_mode'] = mode | 0755 
+		m['st_uid'] = uid
+		m['st_gid'] = gid
+		self._bt.create_subtree(path, str(m))
 
 	def readdir(self, path, fh=None):
 		"""read contents of a directory"""
