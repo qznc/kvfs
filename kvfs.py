@@ -116,9 +116,9 @@ class KVFS:
 	def open(self, path, flags):
 		pass
 
-	def unlink(self, path):
-		"""removes a file"""
-		pass
+	def remove(self, path):
+		"""removes a file or directory"""
+		self._bt.unlink(path)
 
 	def symlink(self, target, name):
 		"""create a symlink"""

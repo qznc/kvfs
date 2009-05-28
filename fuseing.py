@@ -32,7 +32,12 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.mkdir(path, mode, context['uid'], context['gid'])
 
 	def rmdir(self, path):
-		return self._fs.rmdir(path)
+		print "rmdir", path
+		return self._fs.remove(path)
+
+	def unlink(self, path):
+		print "unlink", path
+		return self._fs.remove(path)
 
 	def create(self, path, mode, dev):
 		"""create a file"""
