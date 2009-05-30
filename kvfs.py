@@ -10,12 +10,6 @@ class _MetaData:
 			self.data = marshal.loads(str)
 		else:
 			self.data = {
-					"st_mode": stat.S_IFDIR | 0755,
-					"st_ino": 0,
-					"st_dev": 0,
-					"st_nlink": 2,
-					"st_uid": 0,
-					"st_gid": 0,
 					"st_size": 4096,
 					"st_atime": int(time.time()),
 					"st_mtime": int(time.time()),
@@ -77,25 +71,16 @@ class KVFS:
 	def chown(self, path, uid, gid):
 		pass
 
-	def create(self, path, mode, dev, uid, gid):
+	def create(self, path):
 		"""create a file"""
-		assert stat.S_ISREG(mode)
 		# TODO error if already exists
 		m = _MetaData()
-		m['st_mode'] = mode | 0755
-		m['st_dev'] = dev
-		m['st_uid'] = uid
-		m['st_gid'] = gid
 		self._bt.create_data(path, str(m))
 
-	def mkdir(self, path, mode, uid, gid):
+	def mkdir(self, path):
 		"""creates a directory"""
 		# TODO error if already exists
-		mode = mode | stat.S_IFDIR
 		m = _MetaData()
-		m['st_mode'] = mode | 0755 
-		m['st_uid'] = uid
-		m['st_gid'] = gid
 		self._bt.create_subtree(path, str(m))
 
 	def readdir(self, path, fh=None):
