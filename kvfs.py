@@ -116,7 +116,7 @@ class KVFS:
 
 	def rename(self, old, new):
 		"""rename a file (note that directories may change)"""
-		pass
+		self._bt.rename(old, new)
 
 	def link(self, target, name):
 		"""create a hardlink"""

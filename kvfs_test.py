@@ -75,4 +75,17 @@ def test_hardlink():
 	# but that problem is a deeper one.
 	msg2 = K.read("/bla", len(msg))	
 	assert msg == msg2, (msg, msg2)
-
+	
+def test_rename():
+	K = KVFS(dict())
+	K.mkdir("/sub")
+	K.rename("/sub", "/dir")
+	assert "dir" in K.readdir("/")
+	assert not "sub" in K.readdir("/")
+	# and again with changing directory
+	K.create("/dir/sub")
+	assert "sub" in K.readdir("/dir")
+	K.rename("/dir/sub", "/blub")
+	assert "blub" in K.readdir("/")
+	assert not "sub" in K.readdir("/dir")
+	
