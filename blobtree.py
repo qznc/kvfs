@@ -251,14 +251,3 @@ class BlobTree:
 		pass
 		
 
-if __name__ == "__main__":
-	msg = "Hello Wörld! How are you?"
-	meta_msg = "Söme meta data"
-	T = BlobTree(dict())
-	T.create_data("/blub", meta_msg)
-	T.set_data("/blub", msg)
-	T.create_data("/second", "more meta data")
-	T.create_data("/sub/blub", meta_msg)
-	T.set_data("/sub/blub", "some data")
-	print T
-
