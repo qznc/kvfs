@@ -6,7 +6,8 @@ def test_basic_root():
 	K = KVFS(dict())
 	attr = K.getattr("/")
 	assert stat.S_ISDIR(attr['st_mode'])
-	dir = K.readdir("/")
+	dir = list(K.readdir("/"))
+	assert len(dir) == 2
 	assert '.' in dir
 	assert '..' in dir
 
@@ -18,6 +19,8 @@ def test_basic_file():
 	attr = K.getattr("/blub")
 	assert stat.S_ISREG(attr['st_mode'])
 	K.remove("/blub")
+	print list(K.readdir("/"))
+	assert not "blub" in K.readdir("/")
 	K.flush()
 
 def test_basic_dir():

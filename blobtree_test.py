@@ -56,7 +56,9 @@ def test_deletion():
 	T.create_subtree("/sub/sub", meta2)
 	T.create_data("/sub/data", meta3)
 	T.set_data("/sub/data", "some data")
+	assert "sub" in T.list_dir("/")
 	T.unlink("/sub")
+	assert not "sub" in T.list_dir("/")
 
 def test_dir():
 	meta1 = "apple"
