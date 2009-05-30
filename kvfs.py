@@ -5,12 +5,15 @@ import stat
 import time
 
 class _MetaData(dict):
-	def __init__(self, str=None):
+	"""A dict that serialized to a marshalled string"""
+	def __init__(self, marsh=None):
 		dict.__init__(self)
-		if str:
-			for key, val in marshal.loads(str).items():
+		if marsh:
+			# load marshalled data
+			for key, val in marshal.loads(marsh).items():
 				self[key] = val
 		else:
+			# initialize defaults
 			self.update({
 					"st_mode": 0700,
 					"st_size": 4096,
@@ -22,6 +25,7 @@ class _MetaData(dict):
 		return marshal.dumps(self)
 
 def _raise_io(number):
+	# behave according to Fuse
 	err = IOError()
 	err.errno = number
 	raise err
@@ -47,7 +51,7 @@ class KVFS:
 			_raise_io(errno.ENOENT)
 			
 	def setattr(self, path, attr):
-		"""Returns the attributes of the object at `path`."""
+		"""Sets the attributes of the object at `path`."""
 		if path == "/":
 			self.root_meta = attr
 		try:
