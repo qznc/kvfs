@@ -144,7 +144,7 @@ class KVFS:
 		self._bt.set_data(path, data)
 		return len(buf)
 
-	def flush(self, path, fh=None):
+	def flush(self, path="/", fh=None):
 		"""clear all buffers, finish all pending operations"""
 		pass
 
