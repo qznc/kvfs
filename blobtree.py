@@ -155,9 +155,12 @@ class BlobTree:
 		self._save_path(path, new_blob)
 	def _save_path(self, path, new_blob, meta=None):
 		"""save new_blob at path by updating all TreeBlobs above"""
-		assert path.startswith(os.sep)
+		assert len(path)==0 or path.startswith(os.sep), path
+		assert not path.endswith(os.sep), path
 		path = path.split(os.sep)
 		blob_line = self._get_blob_line(os.sep.join(path[:-1]))
+		if len(path) == 1:
+			blob_line = []
 		assert len(path) == len(blob_line)+1, str(path)+" vs "+str(blob_line)
 		for i in xrange(len(blob_line)):
 			name = path.pop()
@@ -196,8 +199,10 @@ class BlobTree:
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		dirname = os.path.dirname(path)
-		print dirname
+		if dirname.endswith(os.sep):
+			dirname = dirname[:-len(os.sep)]
 		dir.unlink(name)
+		assert dir.id in self._kv.keys(), dir.id
 		self._save_path(dirname, dir)
 	def is_data(self, path):
 		blob_line = self._get_blob_line(path)
