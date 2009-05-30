@@ -16,7 +16,6 @@ def test_basic():
 	T.create_data("/sub/blub", meta_msg)
 	T.set_data("/sub/blub", "some data")
 	assert meta_msg == T.get_meta_data("/sub/blub")
-	print T
 
 def test_meta_data():
 	meta1 = "apple"
