@@ -51,11 +51,16 @@ class KVFS:
 			return _MetaData(self._bt.get_meta_data(path))
 		except (KeyError, IndexError):
 			_raise_io(errno.ENOENT)
-
-	def getxattr(self, path):
-		"""Returns the extended attributes of the object at path. 
-		Extended attributes are attributes not stored in inodes."""
-		pass
+			
+	def setattr(self, path, attr):
+		"""Returns the attributes of the object at `path`."""
+		if path == "/":
+			self.root_meta = attr
+		try:
+			print "path", path
+			self._bt.set_meta_data(path, attr)
+		except (KeyError, IndexError):
+			_raise_io(errno.ENOENT)
 
 	def create(self, path):
 		"""create a file"""

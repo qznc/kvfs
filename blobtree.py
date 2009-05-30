@@ -190,6 +190,8 @@ class BlobTree:
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		dirname = os.path.dirname(path)
+		if dirname.endswith(os.sep):
+			dirname = dirname[:-len(os.sep)]
 		dir.set_meta(name, meta)
 		self._kv[dir.id] = str(dir)
 		self._save_path(dirname, dir)

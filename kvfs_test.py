@@ -97,6 +97,16 @@ def test_truncate():
 	data = K.read("/blub", 10)
 	assert data == "hello"
 	
+def test_attributes():
+	K = KVFS(dict())
+	K.create("/blub")
+	attr = K.getattr("/blub")
+	attr['extended'] = "grins"
+	K.setattr("/blub", attr)
+	attr = K.getattr("/blub")
+	assert attr['extended'] == "grins"
+	
+	
 if __name__ == "__main__":
 	import nose
 	nose.main()
