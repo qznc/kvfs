@@ -10,6 +10,7 @@ class _MetaData:
 			self.data = marshal.loads(str)
 		else:
 			self.data = {
+					"st_mode": 0700,
 					"st_size": 4096,
 					"st_atime": int(time.time()),
 					"st_mtime": int(time.time()),
@@ -19,7 +20,7 @@ class _MetaData:
 		self.data[attr] = value
 	def __getattr__(self, attr):
 		return self.data[attr]
-	def __getitem(self, attr):
+	def __getitem__(self, attr):
 		return self.data[attr]
 	def __str__(self):
 		return marshal.dumps(self.data)
@@ -38,7 +39,9 @@ class KVFS:
 	providing methods like open, close, read, write, ..."""
 	def __init__(self, kv_store):
 		self._bt = BlobTree(kv_store)
-		self.root_meta = _MetaData()
+		m = _MetaData()
+		m['st_mode'] = m['st_mode'] | stat.S_IFDIR
+		self.root_meta = m
 
 	def get_directory(self, path):
 		return self._bt.list_dir(path)
@@ -75,12 +78,14 @@ class KVFS:
 		"""create a file"""
 		# TODO error if already exists
 		m = _MetaData()
+		m['st_mode'] = m['st_mode'] | stat.S_IFREG
 		self._bt.create_data(path, str(m))
 
 	def mkdir(self, path):
 		"""creates a directory"""
 		# TODO error if already exists
 		m = _MetaData()
+		m['st_mode'] = m['st_mode'] | stat.S_IFDIR
 		self._bt.create_subtree(path, str(m))
 
 	def readdir(self, path, fh=None):

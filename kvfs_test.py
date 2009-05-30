@@ -9,21 +9,26 @@ def test_basic():
 def test_basic_file():
 	K = KVFS(dict())
 	K.create("/blub")
-	K.getattr("/blub")
+	attr = K.getattr("/blub")
+	assert stat.S_ISREG(attr['st_mode'])
 	K.remove("/blub")
 	K.flush()
 
 def test_basic_dir():
 	K = KVFS(dict())
 	K.mkdir("/bla")
-	K.getattr("/bla")
-	K.readdir("/bla")
+	attr = K.getattr("/bla")
+	assert stat.S_ISDIR(attr['st_mode'])
+	dir = list(K.readdir("/bla"))
+	assert '.' in dir
+	assert '..' in dir
 	K.remove("/bla")
 	K.flush("/")
 
 def test_root():
 	K = KVFS(dict())
-	K.getattr("/")
+	attr = K.getattr("/")
+	assert stat.S_ISDIR(attr['st_mode'])
 	K.mkdir("/bla")
 	K.remove("/bla")
 	K.getattr("/")
