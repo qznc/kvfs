@@ -16,10 +16,14 @@ class _MetaData:
 					"st_mtime": int(time.time()),
 					"st_ctime": int(time.time()),
 					}
+	def __contains__(self, key):
+		return key in self.data
 	def __setitem__(self, attr, value):
 		self.data[attr] = value
 	def __getattr__(self, attr):
 		return self.data[attr]
+	def __delitem__(self, attr):
+		del self.data[attr]
 	def __getitem__(self, attr):
 		return self.data[attr]
 	def __str__(self):

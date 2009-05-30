@@ -100,12 +100,17 @@ def test_truncate():
 def test_attributes():
 	K = KVFS(dict())
 	K.create("/blub")
-	attr = K.getattr("/blub")
+	attr = K.getattr("/blub")	
+	assert not 'extended' in attr
 	attr['extended'] = "grins"
 	K.setattr("/blub", attr)
 	attr = K.getattr("/blub")
 	assert 'extended' in attr
 	assert attr['extended'] == "grins"
+	del attr['extended']
+	K.setattr("/blub", attr)
+	attr = K.getattr("/blub")
+	assert not 'extended' in attr
 	
 	
 if __name__ == "__main__":
