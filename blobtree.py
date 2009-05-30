@@ -245,6 +245,11 @@ class BlobTree:
 		dir.unlink(name)
 		self._kv[dir.id] = str(dir)
 		self._save_path(dirname, dir)
+	def flush(self):
+		"""clear buffers, etc"""
+		# nothing to do
+		pass
+		
 
 if __name__ == "__main__":
 	msg = "Hello Wörld! How are you?"

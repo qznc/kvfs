@@ -123,7 +123,7 @@ class KVFS:
 
 	def flush(self, path="/"):
 		"""clear all buffers, finish all pending operations"""
-		pass
+		self._bt.flush()
 
 	def truncate(self, path, length):
 		"""truncate file to given length"""
