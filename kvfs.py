@@ -115,7 +115,7 @@ class KVFS:
 		pass
 
 	def rename(self, old, new):
-		"""rename a file (not that directories may change)"""
+		"""rename a file (note that directories may change)"""
 		pass
 
 	def link(self, target, name):

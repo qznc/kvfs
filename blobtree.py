@@ -202,7 +202,7 @@ class BlobTree:
 		if dirname.endswith(os.sep):
 			dirname = dirname[:-len(os.sep)]
 		dir.unlink(name)
-		assert dir.id in self._kv.keys(), dir.id
+		assert dir.id in self._kv, dir.id
 		self._save_path(dirname, dir)
 	def is_data(self, path):
 		blob_line = self._get_blob_line(path)

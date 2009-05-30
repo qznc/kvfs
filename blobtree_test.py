@@ -3,10 +3,28 @@
 
 from blobtree import BlobTree
 
+class strdict:
+	"""a more restrictive dict to keep BlobTree honest"""
+	def __init__(self):
+		self.data = dict()
+	def __contains__(self, key):
+		assert isinstance(key, str), key
+		return key in self.data
+	def __delitem__(self, key):
+		assert isinstance(key, str), key
+		del self.data[key]
+	def __getitem__(self, key):
+		assert isinstance(key, str), key
+		return self.data[key]
+	def __setitem__(self, key, value):
+		assert isinstance(key, str), key
+		assert isinstance(value, str), value
+		self.data[key] = value
+
 def test_basic():
 	msg = "Hello Wörld! How are you?"
 	meta_msg = "Söme meta data"
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	T.create_data("/blub", meta_msg)
 	T.set_data("/blub", msg)
 	T.create_data("/second", "more meta data")
@@ -21,7 +39,7 @@ def test_meta_data():
 	meta1 = "apple"
 	meta2 = "microsoft"
 	meta3 = "linux"
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	T.create_subtree("/sub", meta1)
 	T.create_subtree("/sub/sub", meta2)
 	T.create_data("/sub/data", meta3)
@@ -34,11 +52,11 @@ def test_meta_data():
 	assert meta1 == T.get_meta_data("/sub/data")
 
 def test_peeking():
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	assert not T.exists("/dummy")
 
 def test_checking():
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	T.create_subtree("/sub", "meta")
 	T.create_data("/sub/data", "meta")
 	assert not T.is_data("/sub")
@@ -50,7 +68,7 @@ def test_deletion():
 	meta1 = "apple"
 	meta2 = "microsoft"
 	meta3 = "linux"
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	T.create_subtree("/sub", meta1)
 	T.create_subtree("/sub/sub", meta2)
 	T.create_data("/sub/data", meta3)
@@ -61,7 +79,7 @@ def test_deletion():
 
 def test_dir():
 	meta1 = "apple"
-	T = BlobTree(dict())
+	T = BlobTree(strdict())
 	T.create_subtree("/sub", meta1)
 	T.create_subtree("/sub/sub", meta1)
 	T.create_subtree("/sub/sub2", meta1)
