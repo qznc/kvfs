@@ -4,32 +4,22 @@ import marshal
 import stat
 import time
 
-class _MetaData:
+class _MetaData(dict):
 	def __init__(self, str=None):
+		dict.__init__(self)
 		if str:
-			self.data = marshal.loads(str)
+			for key, val in marshal.loads(str).items():
+				self[key] = val
 		else:
-			self.data = {
+			self.update({
 					"st_mode": 0700,
 					"st_size": 4096,
 					"st_atime": int(time.time()),
 					"st_mtime": int(time.time()),
 					"st_ctime": int(time.time()),
-					}
-	def __contains__(self, key):
-		return key in self.data
-	def __setitem__(self, attr, value):
-		self.data[attr] = value
-	def __getattr__(self, attr):
-		return self.data[attr]
-	def __delitem__(self, attr):
-		del self.data[attr]
-	def __getitem__(self, attr):
-		return self.data[attr]
+					})
 	def __str__(self):
-		return marshal.dumps(self.data)
-	def __nonzero__(self):
-		return True
+		return marshal.dumps(self)
 
 def _raise_io(number):
 	err = IOError()
