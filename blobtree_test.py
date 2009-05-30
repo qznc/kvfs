@@ -104,4 +104,5 @@ def test_rename():
 	
 
 if __name__ == "__main__":
-	test_basic()
+	import nose
+	nose.main()

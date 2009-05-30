@@ -96,3 +96,8 @@ def test_truncate():
 	K.truncate("/blub", 5)
 	data = K.read("/blub", 10)
 	assert data == "hello"
+	
+if __name__ == "__main__":
+	import nose
+	nose.main()
+	
