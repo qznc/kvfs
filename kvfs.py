@@ -120,14 +120,19 @@ class KVFS:
 
 	def link(self, target, name):
 		"""create a hardlink"""
-		pass
+		self._bt.create_data(target, self._bt.get_meta_data(name))
+		self._bt.set_data(target, self._bt.get_data(name))
+		# FIXME this is a copy, not a hardlink!
+		# Subsequent changes won't be applied.
+		# A transparent link blob type would be needed,
+		# but that should rather be called a symlink.
 
-	def read(self, path, length, offset, fh=None):
+	def read(self, path, length, offset=0, fh=None):
 		"""read data from a file"""
 		data = self._bt.get_data(path)
 		return data[offset:offset+length]
 
-	def write(self, path, buf, offset, fh=None):
+	def write(self, path, buf, offset=0, fh=None):
 		"""write data to a file"""
 		data = self._bt.get_data(path)
 		data = data[:offset] + buf + data[offset+len(buf):]

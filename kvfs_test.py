@@ -66,8 +66,13 @@ def test_basic_readwrite():
 	assert msg == msg2, (msg, msg2)
 
 def test_hardlink():
+	msg = "Hello Wörld!"
 	K = KVFS(dict())
 	K.create("/blub")
-	
-	
+	K.write("/blub", msg)
+	K.link("/bla", "/blub")
+	# This doesn't work if 'write' and 'link' order is changed,
+	# but that problem is a deeper one.
+	msg2 = K.read("/bla", len(msg))	
+	assert msg == msg2, (msg, msg2)
 
