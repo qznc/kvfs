@@ -1,3 +1,4 @@
+# -!- encoding: utf-8 -!-
 from kvfs import KVFS
 import stat
 
@@ -55,5 +56,18 @@ def test_dir_operations():
 	assert not "bla" in K.readdir("/")
 	assert stat.S_ISDIR(K.getattr("/")['st_mode'])
 
+def test_basic_readwrite():
+	msg = "Hello Wörld!"
+	K = KVFS(dict())
+	K.create("/blub")
+	l = K.write("/blub", msg, 0)
+	assert len(msg) == l
+	msg2 = K.read("/blub", len(msg), 0)
+	assert msg == msg2, (msg, msg2)
+
+def test_hardlink():
+	K = KVFS(dict())
+	K.create("/blub")
+	
 	
 
