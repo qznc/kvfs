@@ -43,3 +43,17 @@ def test_used_root():
 	K.remove("/bla")
 	K.getattr("/")
 
+def test_dir_operations():
+	K = KVFS(dict())
+	assert stat.S_ISDIR(K.getattr("/")['st_mode'])
+	K.mkdir("/bla")
+	assert "bla" in K.readdir("/")
+	K.create("/bla/blub")
+	assert "blub" in K.readdir("/bla")
+	assert stat.S_ISREG(K.getattr("/bla/blub")['st_mode'])
+	K.remove("/bla")
+	assert not "bla" in K.readdir("/")
+	assert stat.S_ISDIR(K.getattr("/")['st_mode'])
+
+	
+
