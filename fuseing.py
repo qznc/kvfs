@@ -16,20 +16,24 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.write(path, buf, offset)
 
 	def readdir(self, path, offset, fh=None):
-		return self._fs.readdir(path)
+		for file in self._fs.readdir(path):
+			yield fuse.Direntry(file)
 
 	def getattr(self, path):
 		print "getattr", path
-		return self._fs.getattr(path)
+		context = self.GetContext()
+		attr = self._fs.getattr(path)
+		attr['st_uid'] = context['st_uid']
+		attr['st_gid'] = context['st_gid']
+		return attr
 
 	def fgetattr(self, path, fh=None):
 		print "fgetattr", path
 		return self._fs.getattr(path)
 
 	def mkdir(self, path, mode):
-		context = self.GetContext()
 		print "mkdir", path, oct(mode)
-		return self._fs.mkdir(path, mode, context['uid'], context['gid'])
+		return self._fs.mkdir(path)
 
 	def rmdir(self, path):
 		print "rmdir", path
@@ -41,14 +45,13 @@ class MyFuseFS(fuse.Fuse):
 
 	def create(self, path, mode, dev):
 		"""create a file"""
-		context = self.GetContext()
 		print "create", path, oct(mode), dev
-		return self._fs.create(path, mode, dev, context['uid'], context['gid'])
+		return self._fs.create(path, mode)
 
 	def mknod(self, path, mode, dev):
 		"""create a file"""
 		print "mknod", path, oct(mode), dev
-		return self._fs.create(path, mode, dev)
+		return self._fs.create(path)
 
 	def fsinit(self):
 		"""start file system"""
