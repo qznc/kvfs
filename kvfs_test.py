@@ -104,6 +104,7 @@ def test_attributes():
 	attr['extended'] = "grins"
 	K.setattr("/blub", attr)
 	attr = K.getattr("/blub")
+	assert 'extended' in attr
 	assert attr['extended'] == "grins"
 	
 	
