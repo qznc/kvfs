@@ -196,6 +196,7 @@ class BlobTree:
 		dir = blob_line[-2]
 		name = os.path.basename(path)
 		dirname = os.path.dirname(path)
+		print dirname
 		dir.unlink(name)
 		self._save_path(dirname, dir)
 	def is_data(self, path):
