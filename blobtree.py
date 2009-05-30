@@ -148,11 +148,11 @@ class BlobTree:
 			path, id, meta = current.resolve(path)
 		line.append(_parse(self._kv[id]))
 		return line
-	def set_data(self, path, data):
+	def set_data(self, path, data, meta=None):
 		"""put data into data object at path"""
 		new_blob = _DataBlob(data)
 		self._kv[new_blob.id] = str(new_blob)
-		self._save_path(path, new_blob)
+		self._save_path(path, new_blob, meta)
 	def _save_path(self, path, new_blob, meta=None):
 		"""save new_blob at path by updating all TreeBlobs above"""
 		assert len(path)==0 or path.startswith(os.sep), path

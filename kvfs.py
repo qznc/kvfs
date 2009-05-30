@@ -27,7 +27,7 @@ class _MetaData:
 	def __nonzero__(self):
 		return True
 
-def raise_io(number):
+def _raise_io(number):
 	err = IOError()
 	err.errno = number
 	raise err
@@ -43,9 +43,6 @@ class KVFS:
 		m['st_mode'] = m['st_mode'] | stat.S_IFDIR
 		self.root_meta = m
 
-	def get_directory(self, path):
-		return self._bt.list_dir(path)
-
 	def getattr(self, path):
 		"""Returns the attributes of the object at `path`."""
 		if path == "/":
@@ -53,25 +50,11 @@ class KVFS:
 		try:
 			return _MetaData(self._bt.get_meta_data(path))
 		except (KeyError, IndexError):
-			raise_io(errno.ENOENT)
-
-	def setattr(self, path, meta):
-		if path == "/":
-			self.root_meta = meta
-		try:
-			self._bt.set_meta_data(path, meta)
-		except (KeyError, IndexError):
-			raise_io(errno.ENOENT)
+			_raise_io(errno.ENOENT)
 
 	def getxattr(self, path):
 		"""Returns the extended attributes of the object at path. 
 		Extended attributes are attributes not stored in inodes."""
-		pass
-
-	def chmod(self, path, mode):
-		pass
-
-	def chown(self, path, uid, gid):
 		pass
 
 	def create(self, path):
@@ -88,12 +71,12 @@ class KVFS:
 		m['st_mode'] = m['st_mode'] | stat.S_IFDIR
 		self._bt.create_subtree(path, str(m))
 
-	def readdir(self, path, fh=None):
+	def readdir(self, path):
 		"""read contents of a directory"""
 		try:
 			files = self._bt.list_dir(path)
 		except KeyError:
-			raise_io(errno.ENOENT)
+			_raise_io(errno.ENOENT)
 		yield '.'
 		yield '..'
 		for f in files:
@@ -103,16 +86,13 @@ class KVFS:
 		"""Resolves a symbolic link"""
 		pass
 
-	def open(self, path, flags):
+	def symlink(self, target, name):
+		"""create a symbolic link"""
 		pass
-
+		
 	def remove(self, path):
 		"""removes a file or directory"""
 		self._bt.unlink(path)
-
-	def symlink(self, target, name):
-		"""create a symlink"""
-		pass
 
 	def rename(self, old, new):
 		"""rename a file (note that directories may change)"""
@@ -135,21 +115,17 @@ class KVFS:
 	def write(self, path, buf, offset=0):
 		"""write data to a file"""
 		data = self._bt.get_data(path)
+		meta = _MetaData(self._bt.get_meta_data(path))
 		data = data[:offset] + buf + data[offset+len(buf):]
-		self._bt.set_data(path, data)
+		meta['st_mtime'] = time.time()
+		self._bt.set_data(path, data, str(meta))
 		return len(buf)
 
 	def flush(self, path="/"):
 		"""clear all buffers, finish all pending operations"""
 		pass
 
-	def release(self, path):
-		pass
-
 	def truncate(self, path, length):
 		"""truncate file to given length"""
 		data = self._bt.get_data(path)
 		self._bt.set_data(path, data[:length])
-
-	def utimens(self, path, times=None):
-		pass
