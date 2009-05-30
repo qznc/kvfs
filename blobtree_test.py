@@ -89,6 +89,19 @@ def test_dir():
 	assert "sub" in T.list_dir("/sub")
 	assert "sub2" in T.list_dir("/sub")
 
+def test_rename():
+	T = BlobTree(strdict())
+	T.create_subtree("/sub", "meta")
+	T.rename("/sub", "/dir")
+	assert "dir" in T.list_dir("/")
+	assert not "sub" in T.list_dir("/")
+	# and again with changing directory
+	T.create_data("/dir/sub", "meta")
+	assert "sub" in T.list_dir("/dir")
+	T.rename("/dir/sub", "/blub")
+	assert "blub" in T.list_dir("/")
+	assert not "sub" in T.list_dir("/dir")
+	
 
 if __name__ == "__main__":
 	test_basic()

@@ -193,17 +193,6 @@ class BlobTree:
 		dir.set_meta(name, meta)
 		self._kv[dir.id] = str(dir)
 		self._save_path(dirname, dir)
-	def unlink(self, path):
-		"""remove a path from the system"""
-		blob_line = self._get_blob_line(path)
-		dir = blob_line[-2]
-		name = os.path.basename(path)
-		dirname = os.path.dirname(path)
-		if dirname.endswith(os.sep):
-			dirname = dirname[:-len(os.sep)]
-		dir.unlink(name)
-		assert dir.id in self._kv, dir.id
-		self._save_path(dirname, dir)
 	def is_data(self, path):
 		blob_line = self._get_blob_line(path)
 		return isinstance(blob_line[-1], _DataBlob)
@@ -221,6 +210,41 @@ class BlobTree:
 		return blob_line[-1].list_childs()
 	def __str__(self):
 		return "\n".join("%32s\t%s" % (k,v) for k,v in self._kv.items())
+	def unlink(self, path):
+		"""remove a path from the system"""
+		return self._unlink(path)
+	def rename(self, path, target):
+		"""remove a path from the system"""
+		return self._unlink(path, target)
+	def _unlink(self, path, target=False):
+		"""remove blob `path` from tree (maybe reinsert as `target`)"""
+		blob_line = self._get_blob_line(path)
+		dir = blob_line[-2]
+		blob_id = blob_line[-1].id 
+		name = os.path.basename(path)
+		dirname = os.path.dirname(path)
+		if dirname.endswith(os.sep):
+			dirname = dirname[:-len(os.sep)]
+		if target:
+			assert not target.endswith(os.sep)
+			t_name = os.path.basename(target)
+			t_dirname = os.path.dirname(target)
+			if t_dirname.endswith(os.sep):
+				t_dirname = t_dirname[:-len(os.sep)]
+			# insert duplicate
+			if dirname == t_dirname:
+				dir.insert(t_name, blob_id, dir.get_meta(name))
+				# the rest of the work is done for `path` anyways
+			else:
+				print "insert in other dir"
+				t_dir = self._get_blob_line(os.path.dirname(target))[-1]
+				t_dir.insert(t_name, blob_id, dir.get_meta(name))
+				self._kv[t_dir.id] = str(t_dir)
+				self._save_path(t_dirname, t_dir)
+		# remove `path`
+		dir.unlink(name)
+		self._kv[dir.id] = str(dir)
+		self._save_path(dirname, dir)
 
 if __name__ == "__main__":
 	msg = "Hello Wörld! How are you?"
