@@ -1,5 +1,5 @@
 from blobtree import BlobTree
-import fuse
+import errno
 import marshal
 import stat
 import time
@@ -56,7 +56,7 @@ class KVFS:
 		try:
 			return _MetaData(self._bt.get_meta_data(path))
 		except (KeyError, IndexError):
-			raise_io(fuse.ENOENT)
+			raise_io(errno.ENOENT)
 
 	def setattr(self, path, meta):
 		if path == "/":
@@ -64,7 +64,7 @@ class KVFS:
 		try:
 			self._bt.set_meta_data(path, meta)
 		except (KeyError, IndexError):
-			raise_io(fuse.ENOENT)
+			raise_io(errno.ENOENT)
 
 	def getxattr(self, path):
 		"""Returns the extended attributes of the object at path. 
@@ -103,11 +103,11 @@ class KVFS:
 		try:
 			files = self._bt.list_dir(path)
 		except KeyError:
-			raise_io(fuse.ENOENT)
-		yield fuse.Direntry('.')
-		yield fuse.Direntry('..')
+			raise_io(errno.ENOENT)
+		yield '.'
+		yield '..'
 		for f in files:
-			yield fuse.Direntry(f)
+			yield f
 
 	def readlink(self, path):
 		"""Resolves a symbolic link"""
