@@ -88,4 +88,11 @@ def test_rename():
 	K.rename("/dir/sub", "/blub")
 	assert "blub" in K.readdir("/")
 	assert not "sub" in K.readdir("/dir")
-	
+
+def test_truncate():
+	K = KVFS(dict())
+	K.create("/blub")
+	K.write("/blub", "hello world")
+	K.truncate("/blub", 5)
+	data = K.read("/blub", 10)
+	assert data == "hello"

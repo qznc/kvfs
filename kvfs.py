@@ -127,28 +127,29 @@ class KVFS:
 		# A transparent link blob type would be needed,
 		# but that should rather be called a symlink.
 
-	def read(self, path, length, offset=0, fh=None):
+	def read(self, path, length, offset=0):
 		"""read data from a file"""
 		data = self._bt.get_data(path)
 		return data[offset:offset+length]
 
-	def write(self, path, buf, offset=0, fh=None):
+	def write(self, path, buf, offset=0):
 		"""write data to a file"""
 		data = self._bt.get_data(path)
 		data = data[:offset] + buf + data[offset+len(buf):]
 		self._bt.set_data(path, data)
 		return len(buf)
 
-	def flush(self, path="/", fh=None):
+	def flush(self, path="/"):
 		"""clear all buffers, finish all pending operations"""
 		pass
 
-	def release(self, path, fh=None):
+	def release(self, path):
 		pass
 
-	def truncate(self, path, length, fh=None):
+	def truncate(self, path, length):
 		"""truncate file to given length"""
-		pass
+		data = self._bt.get_data(path)
+		self._bt.set_data(path, data[:length])
 
 	def utimens(self, path, times=None):
 		pass
