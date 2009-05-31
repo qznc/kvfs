@@ -10,7 +10,7 @@ class _MetaData(dict):
 	def __init__(self, data=None):
 		dict.__init__(self)
 		if data:
-			# load marshalled data
+			# load pickled data
 			for key, val in pickle.loads(data).items():
 				self[key] = val
 		else:
