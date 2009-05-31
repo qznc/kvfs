@@ -109,11 +109,17 @@ class KVFS:
 		
 	def remove(self, path):
 		"""removes a file or directory"""
-		self._bt.unlink(path)
+		try:
+			self._bt.unlink(path)
+		except KeyError:
+			_raise_io(errno.ENOENT, path)
 
 	def rename(self, old, new):
 		"""rename a file (note that directories may change)"""
-		self._bt.rename(old, new)
+		try:
+			self._bt.rename(old, new)
+		except KeyError:
+			_raise_io(errno.ENOENT, old)
 
 	def link(self, target, name):
 		"""create a hardlink"""
@@ -131,7 +137,10 @@ class KVFS:
 
 	def write(self, path, buf, offset=0):
 		"""write data to a file"""
-		data = self._bt.get_data(path)
+		try:
+			data = self._bt.get_data(path)
+		except KeyError:
+			_raise_io(errno.ENOENT, path)
 		meta = _MetaData(self._bt.get_meta_data(path))
 		data = data[:offset] + buf + data[offset+len(buf):]
 		meta['st_mtime'] = time.time()
@@ -144,5 +153,8 @@ class KVFS:
 
 	def truncate(self, path, length):
 		"""truncate file to given length"""
-		data = self._bt.get_data(path)
+		try:
+			data = self._bt.get_data(path)
+		except KeyError:
+			_raise_io(errno.ENOENT, path)
 		self._bt.set_data(path, data[:length])

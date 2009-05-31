@@ -138,6 +138,49 @@ def test_double_mkdir():
 	except IOError, e:
 		assert e.errno == errno.EEXIST
 
+def raises_errno(number, errmsg):
+	"""decorator to check for IOError with errno attribute"""
+	def decorate(func):
+		def test():
+			try:
+				func()
+				assert False,errmsg
+			except IOError, e:
+				assert e.errno == number
+		return test
+	return decorate
+				
+@raises_errno(errno.ENOENT, "attributes of non-existant file?!")
+def test_noexists_getattr():
+	K = KVFS(dict())
+	K.getattr("/blub")
+	
+@raises_errno(errno.ENOENT, "set attributes of non-existant file?!")
+def test_noexists_setattr():
+	K = KVFS(dict())
+	K.setattr("/blub", "meta")
+	
+@raises_errno(errno.ENOENT, "remove non-existant file?!")
+def test_noexists_remove():
+	K = KVFS(dict())
+	K.remove("/blub")
+	
+@raises_errno(errno.ENOENT, "rename non-existant file?!")
+def test_noexists_rename():
+	K = KVFS(dict())
+	K.rename("/blub", "/bla")
+	
+@raises_errno(errno.ENOENT, "writing to non-existant file?!")
+def test_noexists_write():
+	K = KVFS(dict())
+	K.write("/blub", "bla bla")
+	
+@raises_errno(errno.ENOENT, "truncate non-existant file?!")
+def test_noexists_truncate():
+	K = KVFS(dict())
+	K.truncate("/blub", 5)
+
+
 if __name__ == "__main__":
 	import nose
 	nose.main()
