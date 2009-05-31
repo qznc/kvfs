@@ -1,17 +1,17 @@
 from blobtree import BlobTree
 import errno
-import marshal
+import pickle
 import stat
 import time
 import os
 
 class _MetaData(dict):
-	"""A dict that serialized to a marshalled string"""
-	def __init__(self, marsh=None):
+	"""A dict that serializes to a pickled string"""
+	def __init__(self, data=None):
 		dict.__init__(self)
-		if marsh:
+		if data:
 			# load marshalled data
-			for key, val in marshal.loads(marsh).items():
+			for key, val in pickle.loads(data).items():
 				self[key] = val
 		else:
 			# initialize defaults
@@ -23,7 +23,7 @@ class _MetaData(dict):
 					"st_ctime": int(time.time()),
 					})
 	def __str__(self):
-		return marshal.dumps(self)
+		return pickle.dumps(self)
 
 def _raise_io(number, path=None):
 	# behave according to Fuse
