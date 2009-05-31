@@ -120,24 +120,6 @@ def test_symlink():
 	assert stat.S_ISLNK(K.getattr("/bla")['st_mode'])
 	assert K.readlink("/bla") == "/blub"
 
-def test_double_create():
-	K = KVFS(dict())
-	K.create("/blub")
-	try:
-		K.create("/blub")
-		assert False, "double create must fail!"
-	except IOError, e:
-		assert e.errno == errno.EEXIST
-
-def test_double_mkdir():
-	K = KVFS(dict())
-	K.mkdir("/blub")
-	try:
-		K.mkdir("/blub")
-		assert False, "double mkdir must fail!"
-	except IOError, e:
-		assert e.errno == errno.EEXIST
-
 def test_sizes():
 	msg = "tis is äi dest mässätsch"
 	K = KVFS(dict())
@@ -159,7 +141,19 @@ def raises_errno(number, errmsg):
 				assert e.errno == number, str(e)+" is not errno "+str(number)
 		return test
 	return decorate
-				
+
+@raises_errno(errno.EEXIST, "creating existant file?!")
+def test_double_create():
+	K = KVFS(dict())
+	K.create("/blub")
+	K.create("/blub")
+
+@raises_errno(errno.EEXIST, "creating existant directory?!")
+def test_double_mkdir():
+	K = KVFS(dict())
+	K.mkdir("/blub")
+	K.mkdir("/blub")
+		
 @raises_errno(errno.ENOENT, "attributes of non-existant file?!")
 def test_noexists_getattr():
 	K = KVFS(dict())
