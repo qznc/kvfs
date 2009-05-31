@@ -1,6 +1,6 @@
 from blobtree import BlobTree
 import errno
-import pickle
+import cPickle as pickle
 import stat
 import time
 import os
