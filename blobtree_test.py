@@ -101,7 +101,6 @@ def test_rename():
 	T.rename("/dir/sub", "/blub")
 	assert "blub" in T.list_dir("/")
 	assert not "sub" in T.list_dir("/dir")
-	
 
 if __name__ == "__main__":
 	import nose

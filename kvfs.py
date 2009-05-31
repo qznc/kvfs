@@ -135,9 +135,12 @@ class KVFS:
 		# A transparent link blob type would be needed,
 		# but that should rather be called a symlink.
 
-	def read(self, path, length, offset=0):
+	def read(self, path, length=4000000000, offset=0):
 		"""read data from a file"""
-		data = self._bt.get_data(path)
+		try:
+			data = self._bt.get_data(path)
+		except KeyError:
+			_raise_io(errno.ENOENT, path)
 		return data[offset:offset+length]
 
 	def write(self, path, buf, offset=0):
@@ -146,11 +149,12 @@ class KVFS:
 			data = self._bt.get_data(path)
 		except KeyError:
 			_raise_io(errno.ENOENT, path)
+		except TypeError:
+			_raise_io(errno.EISDIR, path)
 		meta = _MetaData(self._bt.get_meta_data(path))
 		data = data[:offset] + buf + data[offset+len(buf):]
 		meta['st_mtime'] = time.time()
 		self._bt.set_data(path, data, str(meta))
-		return len(buf)
 
 	def flush(self, path="/"):
 		"""clear all buffers, finish all pending operations"""

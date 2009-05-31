@@ -175,7 +175,7 @@ class BlobTree:
 		"""return data from data object at path"""
 		blob_line = self._get_blob_line(path)
 		if not isinstance(blob_line[-1], _DataBlob):
-			raise Exception("not a data object")
+			raise TypeError("not a data object at "+path)
 		return blob_line[-1].data
 	def get_meta_data(self, path):
 		"""return meta data from data object at path"""

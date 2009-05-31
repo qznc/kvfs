@@ -17,7 +17,8 @@ class MyFuseFS(fuse.Fuse):
 
 	def write(self, path, buf, offset, fh=None):
 		"""write data to a file, return amount of bytes written"""
-		return self._fs.write(path, buf, offset)
+		self._fs.write(path, buf, offset)
+		return len(buf)
 
 	def readdir(self, path, offset, fh=None):
 		"""return a list of directory entries in `path`"""

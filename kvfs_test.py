@@ -61,8 +61,7 @@ def test_basic_readwrite():
 	msg = "Hello Wörld!"
 	K = KVFS(dict())
 	K.create("/blub")
-	l = K.write("/blub", msg, 0)
-	assert len(msg) == l
+	K.write("/blub", msg, 0)
 	msg2 = K.read("/blub", len(msg), 0)
 	assert msg == msg2, (msg, msg2)
 
@@ -173,7 +172,18 @@ def test_noexists_rename():
 @raises_errno(errno.ENOENT, "writing to non-existant file?!")
 def test_noexists_write():
 	K = KVFS(dict())
-	K.write("/blub", "bla bla")
+	K.write("/blub", "bla bla")		
+
+@raises_errno(errno.EISDIR, "writing to directory?!")
+def test_noexists_write():
+	K = KVFS(dict())
+	K.mkdir("/blub")
+	K.write("/blub", "bla bla")	
+	
+@raises_errno(errno.ENOENT, "reading from non-existant file?!")
+def test_noexists_read():
+	K = KVFS(dict())
+	K.read("/blub")
 	
 @raises_errno(errno.ENOENT, "truncate non-existant file?!")
 def test_noexists_truncate():
