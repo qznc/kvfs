@@ -3,6 +3,7 @@ import errno
 import marshal
 import stat
 import time
+import os
 
 class _MetaData(dict):
 	"""A dict that serialized to a marshalled string"""
@@ -65,14 +66,16 @@ class KVFS:
 
 	def create(self, path):
 		"""create a file"""
-		# TODO error if already exists
+		if self._bt.exists(path):
+			_raise_io(errno.EEXIST, path)
 		m = _MetaData()
 		m['st_mode'] = m['st_mode'] | stat.S_IFREG
 		self._bt.create_data(path, str(m))
 
 	def mkdir(self, path):
 		"""creates a directory"""
-		# TODO error if already exists
+		if self._bt.exists(path):
+			_raise_io(errno.EEXIST, path)
 		m = _MetaData()
 		m['st_mode'] = m['st_mode'] | stat.S_IFDIR
 		self._bt.create_subtree(path, str(m))
@@ -91,7 +94,10 @@ class KVFS:
 	def readlink(self, path):
 		"""Resolves a symbolic link"""
 		meta = _MetaData(self._bt.get_meta_data(path))
-		return meta['symlink']
+		try:
+			return meta['symlink']
+		except KeyError:
+			_raise_io(errno.ENOLINK, path)
 
 	def symlink(self, target, name):
 		"""create a symbolic link"""

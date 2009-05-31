@@ -1,6 +1,7 @@
 # -!- encoding: utf-8 -!-
 from kvfs import KVFS
 import stat
+import errno
 
 def test_basic_root():
 	"""testing basic root properties"""
@@ -118,7 +119,25 @@ def test_symlink():
 	K.symlink("/bla", "/blub")	
 	assert stat.S_ISLNK(K.getattr("/bla")['st_mode'])
 	assert K.readlink("/bla") == "/blub"
-	
+
+def test_double_create():
+	K = KVFS(dict())
+	K.create("/blub")
+	try:
+		K.create("/blub")
+		assert False, "double create must fail!"
+	except IOError, e:
+		assert e.errno == errno.EEXIST
+
+def test_double_mkdir():
+	K = KVFS(dict())
+	K.mkdir("/blub")
+	try:
+		K.mkdir("/blub")
+		assert False, "double mkdir must fail!"
+	except IOError, e:
+		assert e.errno == errno.EEXIST
+
 if __name__ == "__main__":
 	import nose
 	nose.main()

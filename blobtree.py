@@ -117,7 +117,7 @@ class BlobTree:
 			kv_store[root.id] = str(root)
 			kv_store[self.ROOT] = root.id
 	def create_data(self, path, meta):
-		"""create a data object at path"""
+		"""create a data object at path (reset to empty if already exists)"""
 		end_blob = _DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
