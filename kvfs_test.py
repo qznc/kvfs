@@ -137,6 +137,16 @@ def test_double_mkdir():
 	except IOError, e:
 		assert e.errno == errno.EEXIST
 
+def test_sizes():
+	msg = "tis is äi dest mässätsch"
+	K = KVFS(dict())
+	K.create("/blub")
+	attr = K.getattr("/blub")
+	assert attr['st_size'] == 0, attr['st_size']
+	K.write("/blub", msg)
+	attr = K.getattr("/blub")
+	assert attr['st_size'] == len(msg), (attr['st_size'], len(msg))
+	
 def raises_errno(number, errmsg):
 	"""decorator to check for IOError with errno attribute"""
 	def decorate(func):

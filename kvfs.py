@@ -70,6 +70,7 @@ class KVFS:
 			_raise_io(errno.EEXIST, path)
 		m = _MetaData()
 		m['st_mode'] = m['st_mode'] | stat.S_IFREG
+		m['st_size'] = 0
 		self._bt.create_data(path, str(m))
 
 	def mkdir(self, path):
@@ -154,6 +155,7 @@ class KVFS:
 		meta = _MetaData(self._bt.get_meta_data(path))
 		data = data[:offset] + buf + data[offset+len(buf):]
 		meta['st_mtime'] = time.time()
+		meta['st_size'] = len(data)
 		self._bt.set_data(path, data, str(meta))
 
 	def flush(self, path="/"):
