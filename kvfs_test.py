@@ -146,7 +146,7 @@ def raises_errno(number, errmsg):
 				func()
 				assert False,errmsg
 			except IOError, e:
-				assert e.errno == number
+				assert e.errno == number, str(e)+" is not errno "+str(number)
 		return test
 	return decorate
 				
@@ -179,7 +179,24 @@ def test_noexists_write():
 def test_noexists_truncate():
 	K = KVFS(dict())
 	K.truncate("/blub", 5)
-
+	
+@raises_errno(errno.ENOENT, "readlink of non-existant file?!")
+def test_noexists_readlink():
+	K = KVFS(dict())
+	K.readlink("/blub")
+	
+@raises_errno(errno.ENOLINK, "readlink of regular file?!")
+def test_regular_readlink():
+	K = KVFS(dict())
+	K.create("/blub")
+	K.readlink("/blub")
+	
+@raises_errno(errno.EEXIST, "symlink mustn't overwrite")
+def test_exists_symlink():
+	K = KVFS(dict())
+	K.create("/blub")
+	K.create("/bla")
+	K.symlink("/bla", "/blub")
 
 if __name__ == "__main__":
 	import nose

@@ -93,14 +93,19 @@ class KVFS:
 
 	def readlink(self, path):
 		"""Resolves a symbolic link"""
-		meta = _MetaData(self._bt.get_meta_data(path))
+		try:
+			meta = _MetaData(self._bt.get_meta_data(path))
+		except KeyError:
+			_raise_io(errno.ENOENT, path)
 		try:
 			return meta['symlink']
 		except KeyError:
 			_raise_io(errno.ENOLINK, path)
 
 	def symlink(self, target, name):
-		"""create a symbolic link"""
+		"""create a symbolic link target->name"""
+		if self._bt.exists(target):
+			_raise_io(errno.EEXIST, target)
 		m = _MetaData()
 		# use attributes to save target and link property
 		m['symlink'] = name
