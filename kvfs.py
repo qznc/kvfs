@@ -93,10 +93,7 @@ class KVFS:
 
 	def readlink(self, path):
 		"""Resolves a symbolic link"""
-		try:
-			meta = _MetaData(self._bt.get_meta_data(path))
-		except KeyError:
-			_raise_io(errno.ENOENT, path)
+		meta = self.getattr(path)
 		try:
 			return meta['symlink']
 		except KeyError:
@@ -135,24 +132,23 @@ class KVFS:
 		# A transparent link blob type would be needed,
 		# but that should rather be called a symlink.
 
-	def read(self, path, length=4000000000, offset=0):
-		"""read data from a file"""
+	def _get_data(self, path):
+		"""get data from path or raise IOERROR"""
 		try:
-			data = self._bt.get_data(path)
+			return self._bt.get_data(path)
 		except KeyError:
 			_raise_io(errno.ENOENT, path)
 		except TypeError:
 			_raise_io(errno.EISDIR, path)
+
+	def read(self, path, length=4000000000, offset=0):
+		"""read data from a file"""
+		data = self._get_data(path)
 		return data[offset:offset+length]
 
 	def write(self, path, buf, offset=0):
 		"""write data to a file"""
-		try:
-			data = self._bt.get_data(path)
-		except KeyError:
-			_raise_io(errno.ENOENT, path)
-		except TypeError:
-			_raise_io(errno.EISDIR, path)
+		data = self._get_data(path)
 		meta = _MetaData(self._bt.get_meta_data(path))
 		data = data[:offset] + buf + data[offset+len(buf):]
 		meta['st_mtime'] = time.time()
@@ -165,8 +161,5 @@ class KVFS:
 
 	def truncate(self, path, length):
 		"""truncate file to given length"""
-		try:
-			data = self._bt.get_data(path)
-		except KeyError:
-			_raise_io(errno.ENOENT, path)
+		data = self._get_data(path)
 		self._bt.set_data(path, data[:length])
