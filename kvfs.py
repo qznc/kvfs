@@ -57,9 +57,8 @@ class KVFS:
 	def setattr(self, path, attr):
 		"""Sets the attributes of the object at `path`."""
 		if path == "/":
-			self.root_meta = attr
+			_raise_io(errno.EPERM, path)
 		try:
-			print "path", path
 			self._bt.set_meta_data(path, attr)
 		except (KeyError, IndexError):
 			_raise_io(errno.ENOENT, path)
