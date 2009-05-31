@@ -2,7 +2,11 @@ import fuse
 fuse.fuse_python_api = (0, 2)
 
 class MyFuseFS(fuse.Fuse):
+	"""Implement a Fuse file system on top of KVFS
+	
+	additional functionality includes (pathetic) support for uid, gui attributes"""
 	def __init__(self, fs):
+		"""initialize with a dict for KVFS"""
 		print "my fuse fs initialized"
 		fuse.Fuse.__init__(self)
 		self._fs = fs
@@ -16,10 +20,12 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.write(path, buf, offset)
 
 	def readdir(self, path, offset, fh=None):
+		"""return a list of directory entries in `path`"""
 		for file in self._fs.readdir(path):
 			yield fuse.Direntry(file)
 
 	def getattr(self, path):
+		"""return attribute 'struct' for object at `path`"""
 		print "getattr", path
 		context = self.GetContext()
 		attr = self._fs.getattr(path)
@@ -32,14 +38,17 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.getattr(path)
 
 	def mkdir(self, path, mode):
+		"""create a directory"""
 		print "mkdir", path, oct(mode)
 		return self._fs.mkdir(path)
 
 	def rmdir(self, path):
+		"""remove a directory"""
 		print "rmdir", path
 		return self._fs.remove(path)
 
 	def unlink(self, path):
+		"""remove a file"""
 		print "unlink", path
 		return self._fs.remove(path)
 
@@ -49,7 +58,7 @@ class MyFuseFS(fuse.Fuse):
 		return self._fs.create(path, mode)
 
 	def mknod(self, path, mode, dev):
-		"""create a file"""
+		"""create a file/device node/..."""
 		print "mknod", path, oct(mode), dev
 		return self._fs.create(path)
 
