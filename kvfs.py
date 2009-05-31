@@ -24,9 +24,12 @@ class _MetaData(dict):
 	def __str__(self):
 		return marshal.dumps(self)
 
-def _raise_io(number):
+def _raise_io(number, path=None):
 	# behave according to Fuse
-	err = IOError()
+	msg = os.strerror(number)
+	if path:
+		msg = path+": "+msg
+	err = IOError(msg)
 	err.errno = number
 	raise err
 
@@ -48,7 +51,7 @@ class KVFS:
 		try:
 			return _MetaData(self._bt.get_meta_data(path))
 		except (KeyError, IndexError):
-			_raise_io(errno.ENOENT)
+			_raise_io(errno.ENOENT, path)
 			
 	def setattr(self, path, attr):
 		"""Sets the attributes of the object at `path`."""
@@ -58,7 +61,7 @@ class KVFS:
 			print "path", path
 			self._bt.set_meta_data(path, attr)
 		except (KeyError, IndexError):
-			_raise_io(errno.ENOENT)
+			_raise_io(errno.ENOENT, path)
 
 	def create(self, path):
 		"""create a file"""
@@ -79,7 +82,7 @@ class KVFS:
 		try:
 			files = self._bt.list_dir(path)
 		except KeyError:
-			_raise_io(errno.ENOENT)
+			_raise_io(errno.ENOENT, path)
 		yield '.'
 		yield '..'
 		for f in files:
