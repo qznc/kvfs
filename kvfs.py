@@ -141,6 +141,8 @@ class KVFS:
 			data = self._bt.get_data(path)
 		except KeyError:
 			_raise_io(errno.ENOENT, path)
+		except TypeError:
+			_raise_io(errno.EISDIR, path)
 		return data[offset:offset+length]
 
 	def write(self, path, buf, offset=0):

@@ -185,11 +185,17 @@ def test_noexists_write():
 	K.write("/blub", "bla bla")		
 
 @raises_errno(errno.EISDIR, "writing to directory?!")
-def test_noexists_write():
+def test_dir_write():
 	K = KVFS(dict())
 	K.mkdir("/blub")
 	K.write("/blub", "bla bla")	
-	
+
+@raises_errno(errno.EISDIR, "reading from directory?!")
+def test_dirs_read():
+	K = KVFS(dict())
+	K.mkdir("/blub")
+	K.read("/blub")
+
 @raises_errno(errno.ENOENT, "reading from non-existant file?!")
 def test_noexists_read():
 	K = KVFS(dict())
