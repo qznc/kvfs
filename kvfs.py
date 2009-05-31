@@ -125,7 +125,7 @@ class KVFS:
 
 	def link(self, target, name):
 		"""create a hardlink"""
-		self._bt.create_data(target, self._bt.get_meta_data(name))
+		self._bt.create_data(target, self.getattr(name))
 		self._bt.set_data(target, self._bt.get_data(name))
 		# FIXME this is a copy, not a hardlink!
 		# Subsequent changes won't be applied.
@@ -148,9 +148,12 @@ class KVFS:
 
 	def write(self, path, buf, offset=0):
 		"""write data to a file"""
-		data = self._get_data(path)
-		meta = _MetaData(self._bt.get_meta_data(path))
-		data = data[:offset] + buf + data[offset+len(buf):]
+		meta = self.getattr(path)
+		if offset==0 and len(buf) >= meta['st_size']:
+			data = buf
+		else:
+			data = self._get_data(path)
+			data = data[:offset] + buf + data[offset+len(buf):]
 		meta['st_mtime'] = time.time()
 		meta['st_size'] = len(data)
 		self._bt.set_data(path, data, str(meta))
