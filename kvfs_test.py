@@ -35,6 +35,7 @@ def test_basic_dir():
 	assert '.' in dir
 	assert '..' in dir
 	K.remove("/bla")
+	assert not "bla" in K.readdir("/")
 	K.flush("/")
 
 def test_used_root():
