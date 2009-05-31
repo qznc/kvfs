@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -!- encoding: utf8 -!-
 """
 A BlobTree is a tree of str object with str meta data.
 Elements can be identified via their path.
