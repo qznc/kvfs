@@ -112,6 +112,12 @@ def test_attributes():
 	attr = K.getattr("/blub")
 	assert not 'extended' in attr
 	
+def test_symlink():
+	K = KVFS(dict())
+	K.create("/blub")
+	K.symlink("/bla", "/blub")	
+	assert stat.S_ISLNK(K.getattr("/bla")['st_mode'])
+	assert K.readlink("/bla") == "/blub"
 	
 if __name__ == "__main__":
 	import nose

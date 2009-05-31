@@ -87,11 +87,16 @@ class KVFS:
 
 	def readlink(self, path):
 		"""Resolves a symbolic link"""
-		pass
+		meta = _MetaData(self._bt.get_meta_data(path))
+		return meta['symlink']
 
 	def symlink(self, target, name):
 		"""create a symbolic link"""
-		pass
+		m = _MetaData()
+		# use attributes to save target and link property
+		m['symlink'] = name
+		m['st_mode'] = m['st_mode'] | stat.S_IFLNK
+		self._bt.create_data(target, str(m))
 		
 	def remove(self, path):
 		"""removes a file or directory"""
