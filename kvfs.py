@@ -51,7 +51,7 @@ class KVFS:
 			return self.root_meta
 		try:
 			return _MetaData(self._bt.get_meta_data(path))
-		except (KeyError, IndexError):
+		except KeyError:
 			_raise_io(errno.ENOENT, path)
 			
 	def setattr(self, path, attr):
