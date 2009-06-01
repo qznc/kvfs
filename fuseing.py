@@ -39,7 +39,7 @@ class MyFuseFS(fuse.Fuse):
 		attr['st_nlink'] = 0
 		attr['st_rdev'] = 0
 		attr['st_blksize'] = 4096
-		attr['st_blocks'] = 0
+		attr['st_blocks'] = 1
 		return attr
 
 	def fgetattr(self, path, fh=None):
@@ -70,6 +70,20 @@ class MyFuseFS(fuse.Fuse):
 		"""create a file/device node/..."""
 		print "mknod", path, oct(mode), dev
 		return self._fs.create(path)
+
+	def rename(self, source, target):
+		print "rename", source, target
+		self._fs.rename(source, target)
+
+	def utime(self, path, time):
+		print "utime", path, time
+
+	def utimens(self, path, atime, mtime):
+		print "utimens", path
+		attr = self._fs.getattr(path)
+		attr['st_mtime'] = mtime.tv_sec
+		attr['st_atime'] = atime.tv_sec
+		self._fs.setattr(path, attr)
 
 	def fsinit(self):
 		"""start file system"""
