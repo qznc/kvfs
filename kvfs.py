@@ -38,7 +38,11 @@ class KVFS:
 	"""A Key-Value-File-System
 	This class is initialized with a key value store
 	and implements a file system on top of it,
-	providing methods like open, close, read, write, ..."""
+	providing methods like mkdir, create, read, write, ...
+	
+	In a failure case IOError gets raised.
+	
+	Some features like permissions or hardlinks are not yet supported."""
 	def __init__(self, kv_store):
 		self._bt = BlobTree(kv_store)
 		m = _MetaData()
@@ -46,7 +50,7 @@ class KVFS:
 		self.root_meta = m
 
 	def getattr(self, path):
-		"""Returns the attributes of the object at `path`."""
+		"""returns the attributes of the object at `path`."""
 		if path == "/":
 			return self.root_meta
 		try:
@@ -55,7 +59,7 @@ class KVFS:
 			_raise_io(errno.ENOENT, path)
 			
 	def setattr(self, path, attr):
-		"""Sets the attributes of the object at `path`."""
+		"""sets the attributes of the object at `path`."""
 		if path == "/":
 			_raise_io(errno.EPERM, path)
 		try:
@@ -92,7 +96,8 @@ class KVFS:
 			yield f
 
 	def readlink(self, path):
-		"""Resolves a symbolic link"""
+		"""resolves a symbolic link"""
+		# TODO recursive?
 		meta = self.getattr(path)
 		try:
 			return meta['symlink']

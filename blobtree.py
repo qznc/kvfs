@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-"""
-A BlobTree is a tree of str objects with str meta data,
-stored into a key-value-store.
-Elements can be identified via their path.
-"""
 
 import os, hashlib
 
