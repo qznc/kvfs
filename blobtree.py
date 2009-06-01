@@ -7,7 +7,7 @@ _TREETYPE = "t"
 
 def _hashed(data):
 	"""hash a str object"""
-	return hashlib.md5(data).hexdigest()
+	return hashlib.sha256(data).hexdigest()
 
 """
 Blobs have an id attribute of type str and 
