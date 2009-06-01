@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-A BlobTree is a tree of str object with str meta data.
+A BlobTree is a tree of str objects with str meta data,
+stored into a key-value-store.
 Elements can be identified via their path.
 """
 
@@ -107,8 +108,8 @@ def _parse(data):
 	
 
 class BlobTree:
-	"""implements a tree of str data with meta info
-	and saves everything in a key-value store"""
+	"""Implements a tree of str data with meta info
+	and saves everything in a key-value-store."""
 	ROOT = 'root'
 	def __init__(self, kv_store):
 		self._kv = kv_store
@@ -116,12 +117,12 @@ class BlobTree:
 			root = _TreeBlob()
 			kv_store[root.id] = str(root)
 			kv_store[self.ROOT] = root.id
-	def create_data(self, path, meta):
+	def create_data(self, path, meta=""):
 		"""create a data object at path (reset to empty if already exists)"""
 		end_blob = _DataBlob("")
 		self._kv[end_blob.id] = str(end_blob)
 		self._save_path(path, end_blob, meta)
-	def create_subtree(self, path, meta):
+	def create_subtree(self, path, meta=""):
 		"""create a tree object at path"""
 		end_blob = _TreeBlob(dict())
 		self._kv[end_blob.id] = str(end_blob)
@@ -195,22 +196,26 @@ class BlobTree:
 		self._kv[dir.id] = str(dir)
 		self._save_path(dirname, dir)
 	def is_data(self, path):
+		"""does `path` hold data"""
 		blob_line = self._get_blob_line(path)
 		return isinstance(blob_line[-1], _DataBlob)
 	def is_dir(self, path):
+		"""does `path` hold further elements"""
 		blob_line = self._get_blob_line(path)
 		return isinstance(blob_line[-1], _TreeBlob)
 	def exists(self, path):
+		"""wether `path` references a object"""
 		try:
 			blob_line = self._get_blob_line(path)
 		except KeyError:
 			return False
 		return True
 	def list_dir(self, path):
+		"""returns list of sub elements of `path`"""
 		blob_line = self._get_blob_line(path)
 		return blob_line[-1].list_childs()
 	def __str__(self):
-		return "\n".join("%32s\t%s" % (k,v) for k,v in self._kv.items())
+		return str(self._kv)
 	def unlink(self, path):
 		"""remove a path from the system"""
 		return self._unlink(path)

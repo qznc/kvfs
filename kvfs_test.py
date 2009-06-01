@@ -218,7 +218,7 @@ def test_exists_symlink():
 	K.create("/blub")
 	K.create("/bla")
 	K.symlink("/bla", "/blub")
-
+	
 if __name__ == "__main__":
 	import nose
 	nose.main()
