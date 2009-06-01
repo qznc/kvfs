@@ -141,7 +141,7 @@ class KVFS:
 		except TypeError:
 			_raise_io(errno.EISDIR, path)
 
-	def read(self, path, length=4000000000, offset=0):
+	def read(self, path, length=2000000000, offset=0):
 		"""read data from a file"""
 		data = self._get_data(path)
 		return data[offset:offset+length]
