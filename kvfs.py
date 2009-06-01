@@ -16,12 +16,19 @@ class _MetaData(dict):
 		else:
 			# initialize defaults
 			self.update({
-					"st_mode": 0700,
+					"st_mode": 0600,
 					"st_size": 4096,
 					"st_atime": int(time.time()),
 					"st_mtime": int(time.time()),
 					"st_ctime": int(time.time()),
 					})
+	def __getattr__(self, name):
+		if name.startswith("__"):
+			raise AttributeError()
+		try:
+			return self[name]
+		except KeyError:
+			print "no meta data:", name
 	def __str__(self):
 		return pickle.dumps(self)
 

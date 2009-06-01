@@ -13,10 +13,12 @@ class MyFuseFS(fuse.Fuse):
 	
 	def read(self, path, length, offset, fh=None):
 		"""read data from a file"""
+		print "read", path
 		return self._fs.read(path, length, offset)
 
 	def write(self, path, buf, offset, fh=None):
 		"""write data to a file, return amount of bytes written"""
+		print "write", path
 		self._fs.write(path, buf, offset)
 		return len(buf)
 
@@ -30,13 +32,19 @@ class MyFuseFS(fuse.Fuse):
 		print "getattr", path
 		context = self.GetContext()
 		attr = self._fs.getattr(path)
-		attr['st_uid'] = context['st_uid']
-		attr['st_gid'] = context['st_gid']
+		attr['st_uid'] = context['uid']
+		attr['st_gid'] = context['gid']
+		attr['st_ino'] = 0
+		attr['st_dev'] = 0
+		attr['st_nlink'] = 0
+		attr['st_rdev'] = 0
+		attr['st_blksize'] = 4096
+		attr['st_blocks'] = 0
 		return attr
 
 	def fgetattr(self, path, fh=None):
 		print "fgetattr", path
-		return self._fs.getattr(path)
+		return self.getattr(path)
 
 	def mkdir(self, path, mode):
 		"""create a directory"""
@@ -56,7 +64,7 @@ class MyFuseFS(fuse.Fuse):
 	def create(self, path, mode, dev):
 		"""create a file"""
 		print "create", path, oct(mode), dev
-		return self._fs.create(path, mode)
+		return self._fs.create(path)
 
 	def mknod(self, path, mode, dev):
 		"""create a file/device node/..."""
