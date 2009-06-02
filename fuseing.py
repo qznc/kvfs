@@ -108,7 +108,8 @@ class MyFuseFS(fuse.Fuse):
 
 if __name__ == "__main__":
 	from kvfs import KVFS
-	kv = dict()
+	from scalaris_dict import scalaris_dict
+	kv = scalaris_dict("http://localhost:8000/jsonrpc.yaws")
 	core = KVFS(kv)
 
 	import sys
