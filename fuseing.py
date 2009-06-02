@@ -110,6 +110,7 @@ if __name__ == "__main__":
 	from kvfs import KVFS
 	from scalaris_dict import scalaris_dict
 	kv = scalaris_dict("http://localhost:8000/jsonrpc.yaws")
+	kv = dict()
 	core = KVFS(kv)
 
 	import sys
