@@ -1,5 +1,6 @@
 import json
 import urllib2
+import base64
 
 class scalaris_dict:
 	def __init__(self, url):
@@ -16,17 +17,24 @@ class scalaris_dict:
 		fh = urllib2.urlopen(request)
 		return json.loads(fh.read())
 	def __setitem__(self, key, value):
+		value = base64.encodestring(value)
+		key = base64.encodestring(key)
 		ret = self._request('write', key, value)
 		assert ret['result'] == "ok"
 	def __getitem__(self, key):
-		return self._request('read', key)['result']
+		key = base64.encodestring(key)
+		value = str(self._request('read', key)['result'])
+		value = base64.decodestring(value)
+		return value
 	def __delitem__(self, key):
 		"""WARNING: keys may reappear in seldom cases!
 		Read: http://groups.google.com/group/scalaris/browse_thread/thread/ff1d9237e218799?pli=1
 		"""
+		key = base64.encodestring(key)
 		ret = self._request('delete', key)
 		assert 'ok' in ret['result']
 	def __contains__(self, key):
+		key = base64.encodestring(key)
 		result = self._request('read', key)['result']
 		if 'failure' in result and result['failure'] == 'not_found':
 			return False
