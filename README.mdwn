@@ -22,6 +22,7 @@ The repository lives at
 
 Requirements are
  * python-fuse
+ * nosetests (for unit testing)
 
 Running
 -------
