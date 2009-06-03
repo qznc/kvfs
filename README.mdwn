@@ -18,9 +18,11 @@ Installation
 
 Doesn't exist.
 The repository lives at
-   http://github.com/beza1e1/kvfs
+
+<http://github.com/beza1e1/kvfs>
 
 Requirements are
+
  * python-fuse
  * nosetests (for unit testing)
 
@@ -32,5 +34,4 @@ $ python fusing.py <mount point>
 Author
 ------
 
-Andreas Zwinkau <beza1e1@web.de>
-http://beza1e1.tuxen.de
+Andreas Zwinkau <beza1e1@web.de> <http://beza1e1.tuxen.de>
