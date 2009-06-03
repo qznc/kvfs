@@ -1,0 +1,35 @@
+KVFS
+====
+
+KVFS is a key-value-file-system.
+It is my exploration into file-systems and distributed systems.
+
+On top of a python-dict-like-object it
+implements a hierarchical keystore.
+On top of that a file system with metadata.
+On top of that a Fuse filesystem.
+
+As python-dict-like-object a dict can be used,
+but also a bsddb or the included scalaris-dict,
+which can connect to a Scalaris db.
+
+Installation
+------------
+
+Doesn't exist.
+The repository lives at
+   http://github.com/beza1e1/kvfs
+
+Requirements are
+ * python-fuse
+
+Running
+-------
+
+$ python fusing.py <mount point>
+
+Author
+------
+
+Andreas Zwinkau <beza1e1@web.de>
+http://beza1e1.tuxen.de
